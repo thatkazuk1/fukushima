@@ -18,6 +18,22 @@ Item {
     property int holdExtends: 0
 
     /**
+     * Workspace flash morph: 0 holds the bare tracker line the switch first
+     * shows, 1 is the numbered row you read to know where you landed. Each
+     * workspace flash snaps this back to 0, waits a beat, then eases to 1, so
+     * the sequence is line -> number -> (hold) -> the popup's own fade-out.
+     */
+    property real wsReveal: 0
+    Behavior on wsReveal { NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
+    onFlashingChanged: if (!flashing) wsReveal = 0
+
+    Timer {
+        id: wsRevealTimer
+        interval: 200
+        onTriggered: root.wsReveal = 1
+    }
+
+    /**
      * The player the current flash speaks for. Normally the active source, but an
      * announce can point it at another player that just started, so a video over
      * your music still gets its own flash without stealing the surface.
@@ -96,9 +112,14 @@ Item {
             return false;
         if (which === "track")
             holdExtends = 0;
+        if (which === "workspace") {
+            wsReveal = 0;
+            wsRevealTimer.restart();
+        }
         kind = which;
         flashing = true;
-        hideTimer.interval = (which === "battery" || which === "record") ? 2000 : 1800;
+        hideTimer.interval = which === "battery" || which === "record" ? 2000
+            : which === "workspace" ? 2200 : 1800;
         hideTimer.restart();
         return true;
     }
@@ -543,6 +564,8 @@ Item {
             s: root.s
             gap: 8 * root.s
             enabled: false
+            showNumbers: true
+            numberReveal: root.wsReveal
         }
     }
 

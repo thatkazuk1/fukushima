@@ -36,6 +36,20 @@ Item {
     property real gap: 4 * s
 
     /**
+     * Numbered mode. `showNumbers` opts a host in; `numberReveal` (0..1) then
+     * morphs each slot from the plain tracker shape — dim dots with the active
+     * one a vermillion line — into a row of workspace numbers with the active
+     * one a filled disc. Animate `numberReveal` to get the line -> number
+     * transition; at 0 the render is byte-identical to the dot-only tracker, so
+     * the hover row and the strip data source are untouched.
+     */
+    property bool showNumbers: false
+    property real numberReveal: 0
+    property real numDotW: 15 * s
+    property real numActiveW: 21 * s
+    readonly property real rev: showNumbers ? numberReveal : 0
+
+    /**
      * The dot range and active marker are plain properties, recomputed
      * imperatively by rebuild() from the last hyprctl snapshot rather than
      * chained computed bindings. A switch onto an already-created workspace
@@ -209,19 +223,38 @@ Item {
 
                 readonly property string wsName: String(modelData)
                 readonly property bool isActive: workspaces.activeName === wsName
+                readonly property real rev: workspaces.rev
 
-                Layout.preferredWidth: slot.isActive ? workspaces.stickW : workspaces.dotW
+                Layout.preferredWidth: slot.isActive
+                    ? workspaces.stickW + (workspaces.numActiveW - workspaces.stickW) * slot.rev
+                    : workspaces.dotW + (workspaces.numDotW - workspaces.dotW) * slot.rev
                 Layout.preferredHeight: 22 * workspaces.s
                 Behavior on Layout.preferredWidth { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
 
                 Rectangle {
+                    id: mark
                     anchors.centerIn: parent
                     width: parent.width
                     height: workspaces.dotW
+                        + ((slot.isActive ? workspaces.numActiveW : workspaces.dotW) - workspaces.dotW) * slot.rev
                     radius: height / 2
                     color: slot.isActive ? Theme.vermLit : Theme.cream
-                    opacity: slot.isActive ? 1.0 : (area.containsMouse ? 0.7 : 0.3)
+                    opacity: slot.isActive
+                        ? 1.0
+                        : (area.containsMouse ? 0.7 : 0.3) * (1 - slot.rev)
                     Behavior on opacity { NumberAnimation { duration: Motion.fast } }
+                }
+
+                Text {
+                    anchors.centerIn: parent
+                    visible: slot.rev > 0.01
+                    opacity: slot.isActive ? slot.rev : slot.rev * 0.34
+                    text: slot.wsName
+                    color: slot.isActive ? Theme.bright : Theme.cream
+                    font.family: Theme.font
+                    font.pixelSize: 11 * workspaces.s
+                    font.weight: Font.DemiBold
+                    font.features: ({ "tnum": 1 })
                 }
 
                 MouseArea {
