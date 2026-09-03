@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Effects
 import "../config"
 
 /**
@@ -64,6 +63,16 @@ Item {
         }
     }
 
+    // Soft drop shadow — a plain offset scrim, not a layer effect (the layer
+    // effect was rendering the bubble itself translucent).
+    Rectangle {
+        anchors.fill: bubble
+        anchors.topMargin: 2 * root.s
+        radius: bubble.radius + 1
+        color: Qt.rgba(0, 0, 0, 0.22)
+        z: -1
+    }
+
     Rectangle {
         id: bubble
         // qmllint disable Quick.anchor-combinations
@@ -73,23 +82,15 @@ Item {
         // qmllint enable Quick.anchor-combinations
         anchors.top: root.below ? undefined : parent.top
         anchors.bottom: root.below ? parent.bottom : undefined
-        width: Math.max(titleText.implicitWidth, descText.implicitWidth) + 20 * root.s
-        height: column.implicitHeight + 12 * root.s
+        width: Math.max(titleText.implicitWidth, descText.implicitWidth) + 18 * root.s
+        height: column.implicitHeight + 11 * root.s
         radius: 8 * root.s
-        // A lifted, opaque tone — the pill body behind is the same cardTop/cardBot
-        // gradient, so a gradient bubble would vanish into it. Solid ghost + a
-        // real border reads as a hint floating over the content.
-        color: Theme.ghost
+        // Inverted against the pill: `cream` is the copy colour, so a cream-filled
+        // bubble is always maximally different from the cardTop/cardBot body
+        // behind it — a light hint on the dark pill, a dark hint on the light one.
+        color: Theme.cream
         border.width: 1
-        border.color: Theme.border
-
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowColor: Qt.rgba(0, 0, 0, 0.6)
-            shadowBlur: 0.9
-            shadowVerticalOffset: 5 * root.s
-        }
+        border.color: Qt.alpha(Theme.cardBot, 0.25)
     }
 
     Column {
@@ -101,9 +102,9 @@ Item {
             id: titleText
             anchors.horizontalCenter: parent.horizontalCenter
             text: root.title
-            color: Theme.cream
+            color: Theme.cardBot
             font.family: Theme.font
-            font.pixelSize: 11 * root.s
+            font.pixelSize: 10.5 * root.s
             font.weight: Font.Bold
         }
         Text {
@@ -111,13 +112,14 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             visible: root.desc.length > 0
             text: root.desc
-            color: Theme.subtle
+            color: Qt.alpha(Theme.cardBot, 0.7)
             font.family: Theme.font
-            font.pixelSize: 10 * root.s
+            font.pixelSize: 9.5 * root.s
         }
     }
 
     Canvas {
+        id: pointer
         width: 11 * root.s
         height: root.pointerH
         // qmllint disable Quick.anchor-combinations
@@ -127,10 +129,15 @@ Item {
         // qmllint enable Quick.anchor-combinations
         anchors.top: root.below ? parent.top : undefined
         anchors.bottom: root.below ? undefined : parent.bottom
+        onVisibleChanged: if (visible) requestPaint()
+        Connections {
+            target: Theme
+            function onCreamChanged() { pointer.requestPaint(); }
+        }
         onPaint: {
             var ctx = getContext("2d");
             ctx.reset();
-            ctx.fillStyle = Theme.ghost;
+            ctx.fillStyle = Theme.cream;
             ctx.beginPath();
             if (root.below) {
                 ctx.moveTo(0, height);

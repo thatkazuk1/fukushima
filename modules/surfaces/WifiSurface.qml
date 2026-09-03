@@ -569,7 +569,6 @@ PillSurface {
                     placement: "below"
                     align: "right"
                     title: "Share network"
-                    desc: "Show a QR code to join"
                     show: qrArea.containsMouse
                 }
             }
@@ -595,7 +594,6 @@ PillSurface {
                     placement: "below"
                     align: "right"
                     title: "Speed test"
-                    desc: "Measure this connection"
                     show: speedArea.containsMouse
                 }
             }

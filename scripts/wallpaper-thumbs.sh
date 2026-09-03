@@ -23,7 +23,7 @@ mkdir -p "$dir"
 printf %s "$wpdir" > "$dir/.srcdir"
 
 sources() { # $1 = source folder; prints basenames of its wallpapers, sorted
-    find "$1" -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.gif' \
+    find "$1" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' \
         -o -iname '*.webp' -o -iname '*.mp4' -o -iname '*.webm' \
         -o -iname '*.mkv' -o -iname '*.mov' \) -printf '%f\n' | sort -u
 }
@@ -51,7 +51,7 @@ prune_dir() { # $1 = thumb dir, $2 = source folder
 # Active folder: prune stale thumbs, then regenerate missing or outdated ones.
 prune_dir "$dir" "$wpdir"
 
-find "$wpdir" -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.gif' \
+find "$wpdir" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' \
     -o -iname '*.webp' -o -iname '*.mp4' -o -iname '*.webm' \
     -o -iname '*.mkv' -o -iname '*.mov' \) | while IFS= read -r src; do
     thumb="$dir/$(basename "$src").png"
