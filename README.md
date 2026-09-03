@@ -36,7 +36,8 @@ This is a fork. See [Acknowledgements](#acknowledgements) for the lineage.
 ## Features
 
 - **Dynamic island** — one morphing pill per monitor, expanding in place with a bead cursor and smooth morph animations. Four collapsed faces (minimal / classic / system / strip).
-- **Surfaces** grown from the pill: launcher, weather, calendar, media, mixer, wallpaper strip + online search, screen recorder, clipboard history, wifi, bluetooth, battery, power menu, system monitor (with a speed test), notification centre, minimized-window stash, OSD, toasts, and a settings hub (appearance → display, theme, font, interface, update).
+- **Surfaces** grown from the pill: launcher, weather, calendar, media, mixer, wallpaper strip + online search, screen recorder, clipboard history, wifi, bluetooth, battery, power menu, system monitor, notification centre, minimized-window stash, OSD, toasts, and a settings hub (appearance → display, theme, font, interface, update).
+- **Network panel** — the wifi surface carries a live vitals grid (ping / packet loss, receive + send rates, session totals, IP / gateway), a Wi-Fi band selector with an automatic mode, QR sharing, and an inline speed test, over the signal-sorted Known / Other network list with its connect / forget / show-password flow.
 - **Wallpaper system** — `awww` backend with a shuffled bag, per-monitor assignment, animated transitions, live wallpapers (`mpvpaper`), a per-wallpaper fit control (Cover / Contain / Stretch / Center) that rescales the screen in place, and a live palette that retints the whole UI plus the terminal on every change; an online [Wallhaven](https://wallhaven.cc) browse/search with pagination, Hot / Latest / Top / Random / Top Liked sorting, and memory-only thumbnails (nothing cached to disk).
 - **Screen recorder** — `gpu-screen-recorder` with slurp window/region picking, countdown, quality presets, audio, and a recent-clips filmstrip.
 - **Weather** — Open-Meteo current conditions, hourly and five-day forecast in a dedicated surface, with an editable location (falls back to IP auto-detection).
@@ -76,7 +77,9 @@ the pure-JS logic tests on every push.
 | `magick` (ImageMagick) | wallpaper thumbnails and palette |
 | `awww` + `awww-daemon` | wallpaper backend |
 | `ffmpeg` | video-wallpaper still extraction |
-| `nmcli` (NetworkManager) | wifi surface |
+| `nmcli` (NetworkManager) | wifi surface, band selector |
+| `qrencode` | Wi-Fi share QR in the network panel |
+| `ip` / `ping` (iproute2, iputils) | network panel vitals |
 | `brightnessctl` or `light` | backlight control |
 | `cava` | music visualiser |
 | `cliphist` + `wl-clipboard` | clipboard history |

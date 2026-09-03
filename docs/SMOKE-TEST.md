@@ -98,9 +98,17 @@ Set the face in Appearance → Display, or edit `~/.local/state/ukishima/flags.j
 
 Reachable via `just ipc page "" <name>` and from the expanded hover row.
 
-- [ ] **wifi** (`page "" wifi`) — enable toggle; networks sorted by signal;
-      secured unknown network → inline password row → `nmcli dev wifi connect`;
-      `Esc` / backdrop dismiss
+- [ ] **wifi** (`page "" wifi`) — network panel (NetInfo service):
+  - [ ] vitals grid updates live: Ping / Packet Loss, Receiving / Sending,
+        Downloaded / Uploaded (cumulative), IP Address / Gateway
+  - [ ] **WI-FI BAND** row: header reads the live band when auto; AUTOMATIC
+        toggle; pinning a band shows 2.4/5/6 pills and reconnects (auto-reverts
+        with an error line if the AP doesn't serve it)
+  - [ ] **QR glyph** → share card: scannable matrix, SSID, close chevron
+  - [ ] **gauge glyph** → speed test: Start → ping/down/up fill in, Run again
+  - [ ] list split into **KNOWN NETWORKS** / **OTHER NETWORKS**; secured unknown
+        network → inline password row → `nmcli dev wifi connect`; disconnect /
+        forget / show-password on a saved row; `Esc` / backdrop dismiss
 - [ ] **bt** (`page "" bt`) — adapter toggle; scan with 25s auto-stop; known
       devices use Quickshell connect/disconnect; unpaired → pair-trust-connect
       with inline ember + transient failure line
@@ -111,8 +119,8 @@ Reachable via `just ipc page "" <name>` and from the expanded hover row.
 - [ ] **sysmon** (`ipc sysmon`) — CPU/GPU/memory flame dials (270° arcs, eased);
       centre value + unit + sub (temp / mem total); hairline strip: net
       throughput, disk fill, swap, VRAM; no dGPU → GPU dial + VRAM cell drop and
-      the rest recentre; polling only runs while open
-  - [ ] speed test action runs and reports
+      the rest recentre; polling only runs while open. (No speed test here any
+      more — it moved to the wifi panel.)
 - [ ] **weather** (`page "" weather`) — hero glyph + temp + humidity; hourly grid;
       5-day forecast under a hairline; pre-fetch → header + dim waiting hint only;
       editable location, falls back to IP auto-detect
@@ -177,10 +185,12 @@ returns to the index, empty click / cog closes.
 
 ## 8. Services / live reactivity
 
-- [ ] **Battery notifications** — discharging past 25 % / 20 % fire once each;
-      15 % opens a critical announce that repeats every 10 min until plugged in;
-      re-arms on charge or rising back above 25 %; "full" fires once at the
-      actual full point (respects an 80 % charge limit)
+- [ ] **Battery notifications** (`BatteryAlerts` singleton) — discharging past
+      25 % / 20 % fire once each; 15 % opens a critical announce that repeats
+      every 10 min until plugged in; re-arms on charge or rising back above
+      25 %; "full" fires once at the actual full point (respects an 80 % limit)
+- [ ] **NetInfo** — the wifi panel's grid, ping and band poll only while the
+      surface is open, and stop when it closes
 - [ ] **Dyn / palette** — changing the wallpaper retints the whole UI + terminal
       live (watches `colors.json`)
 - [ ] **Flags** — a change written to `flags.json` by one instance shows up in
