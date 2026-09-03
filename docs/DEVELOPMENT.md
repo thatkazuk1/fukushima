@@ -80,11 +80,11 @@ repo pointing `qmlls` at it ("QML tooling support enabled" in the launch log).
 
 Consequences:
 
-- **Keep `just dev` running while you edit.** It populates the VFS mirror the
-  editor's `qmlls` reads Quickshell types from; quickshell writes/refreshes
-  `.qmlls.ini` while it runs and an editor is connected. `/run/user` is a tmpfs,
-  so none of this survives a reboot — the first `just dev` of the session
-  rebuilds it.
+- The live shell (loaded from this repo) populates that VFS mirror and
+  writes/refreshes `.qmlls.ini` while it runs and an editor is connected, so
+  Quickshell types resolve for `qmlls` in a normal session. `/run/user` is a
+  tmpfs; a reboot rebuilds it on next login. (A `just dev` session does the same
+  for its own config id.)
 - `.qmlls.ini` is **git-ignored** — it holds absolute machine-specific paths and
   is disposable. Don't commit it. If your editor isn't picking up Quickshell
   types, confirm the file exists and points into a `vfs/<id>/` that still exists.
@@ -97,25 +97,29 @@ regardless.
 
 ## 3. Running your changes
 
-You already have an Ukishima instance running as your desktop. To test this
-working copy **without disturbing it**, run it as an isolated dev instance:
+This repo **is** the live shell. `~/.config/quickshell` is a symlink to it, so
+Hyprland's `exec-once = ... exec quickshell` loads this tree and the shell uses
+your real `~/.local/state/ukishima` state. Quickshell hot-reloads QML on save,
+so editing a file *is* the dev loop — nothing to run.
+
+After changing a **singleton** (or anything not hot-reloadable), restart:
 
 ```bash
-just dev
+qs kill
+hyprctl dispatch exec 'bash -lc "exec quickshell"'
 ```
 
-This runs `scripts/dev.sh`, which redirects `XDG_STATE_HOME` and
-`XDG_CACHE_HOME` into `./.dev/` (git-ignored) so the dev instance reads and
-writes its own settings, wallpaper state and caches — your real
-`~/.local/state/ukishima*` is untouched. `Ctrl-C` stops it.
-
-Quickshell hot-reloads on file save, so `just dev` in one terminal + your editor
-is the whole loop. If it wedges:
+To try something risky **without touching live state**, run a throwaway
+instance with its own `./.dev/` state/cache (git-ignored):
 
 ```bash
-just dev-kill      # stop the dev instance
-just dev-clean     # also wipe ./.dev/ for a clean-slate settings test
+just dev           # Ctrl-C to stop
+just dev-kill      # if it wedges
+just dev-clean     # wipe ./.dev/ for a clean-slate settings test
 ```
+
+Two shells can't both own the `ukishima` IPC id and layer namespace cleanly, so
+stop the live one (`qs kill`) before a `just dev` session you need to *see*.
 
 Drive surfaces over IPC just like the real keybinds do:
 

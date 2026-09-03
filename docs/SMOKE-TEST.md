@@ -164,6 +164,10 @@ returns to the index, empty click / cog closes.
 - [ ] **OSD** — volume / brightness / workspace change → capsule grows from the
       top like a notch, holds, shrinks; the pill does **not** morph for these;
       level bars stay fixed size through the transition
+- [ ] **Workspace flash** — on switch / alt-tab: the capsule shows the bare
+      tracker line briefly, then morphs to the numbered row (active in a
+      vermillion disc), holds ~2.2 s, fades. Per-monitor: only the switched
+      monitor's capsule flashes
 - [ ] **Toast** — an incoming notification renders in the pill body (icon,
       app eyebrow, summary + critical ember, body, action pills); click
       dismisses (stays in inbox); actions consume their own click; auto-expires
