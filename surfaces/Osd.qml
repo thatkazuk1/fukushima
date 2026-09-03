@@ -75,9 +75,11 @@ Item {
      * Active workspace name on this monitor. Any switch (Super+arrow,
      * Super+wheel, clicking a dot) changes it, so flashing the workspace OSD
      * here briefly morphs the pill open to show where you landed. The arm timer
-     * swallows the initial populate, so login doesn't flash. Skipped while the
-     * pill is expanded: the hover/surface pill already shows the live dots with
-     * the active one marked, so the OSD would only be a redundant morph.
+     * swallows the initial populate, so login doesn't flash. While the pill is
+     * expanded the flash is deferred, not dropped: the open pill already shows
+     * the live dots, but clicking one and moving away should still land the
+     * number confirmation, so a switch made while expanded fires the flash the
+     * moment the pill collapses.
      */
     readonly property string activeWsName: {
         var mons = Hyprland.monitors.values;
@@ -86,7 +88,19 @@ Item {
                 return mons[i].activeWorkspace ? mons[i].activeWorkspace.name : "";
         return "";
     }
-    onActiveWsNameChanged: if (activeWsName.length > 0 && !expanded) flash("workspace");
+    property bool wsFlashPending: false
+    onActiveWsNameChanged: {
+        if (activeWsName.length === 0)
+            return;
+        if (expanded)
+            wsFlashPending = true;
+        else
+            flash("workspace");
+    }
+    onExpandedChanged: if (!expanded && wsFlashPending) {
+        wsFlashPending = false;
+        flash("workspace");
+    }
 
     /**
      * Media (track) flashes are intentionally disabled: a playing browser throws
