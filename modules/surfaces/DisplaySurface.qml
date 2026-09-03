@@ -1,9 +1,9 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 時 DISPLAY sub-surface: how the pill itself looks and what the clock shows —

@@ -3,9 +3,9 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import Quickshell
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * Calendar surface: the month grid and an event editor that grows out to the

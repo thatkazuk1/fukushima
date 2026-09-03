@@ -5,9 +5,9 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Networking
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 波 WIFI surface: kanji header, wifi enable toggle and the live network list

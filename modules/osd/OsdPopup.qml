@@ -2,8 +2,8 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Effects
-import "../config"
-import "../services"
+import "../../config"
+import "../../services"
 
 /**
  * Standalone OSD overlay, fully decoupled from the pill. The pill never morphs

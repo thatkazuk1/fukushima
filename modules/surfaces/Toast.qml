@@ -2,8 +2,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Services.Notifications
-import "../config"
-import "../services"
+import "../../config"
+import "../../services"
 
 /**
  * Toast content for the morphing pill body: icon tile, app eyebrow, summary

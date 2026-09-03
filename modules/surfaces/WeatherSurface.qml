@@ -2,9 +2,9 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 天 WEATHER surface: a live read-out of the Open-Meteo forecast already served

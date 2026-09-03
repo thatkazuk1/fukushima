@@ -1,9 +1,9 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 相 APPEARANCE index: the door into the appearance settings, split into four

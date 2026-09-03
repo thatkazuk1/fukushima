@@ -3,9 +3,9 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell.Io
 import Quickshell.Bluetooth
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 歯 BLUETOOTH surface: kanji header, scan with 25s auto-stop, adapter toggle,

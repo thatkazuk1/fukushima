@@ -4,9 +4,9 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Widgets
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * Power surface: a row of hand-drawn session glyphs split by a hairline into a

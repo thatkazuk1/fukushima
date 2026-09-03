@@ -1,9 +1,9 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * Clipboard surface: search field over the cliphist history, drawn as one of

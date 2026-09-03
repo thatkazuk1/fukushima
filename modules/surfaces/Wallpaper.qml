@@ -6,9 +6,9 @@ import QtMultimedia
 import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * Wallpaper surface: a filmstrip over the wallpaper directory, rendered as one

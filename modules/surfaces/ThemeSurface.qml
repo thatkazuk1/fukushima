@@ -3,9 +3,9 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import Quickshell.Io
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 色 THEME sub-surface: the theme switch (light or dark pill, dynamic

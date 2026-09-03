@@ -3,9 +3,9 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Effects
 import Quickshell.Widgets
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * Now-playing card. Album art bleeds edge-to-edge on the left, faded into the

@@ -7,7 +7,9 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import "config"
 import "services"
-import "surfaces"
+import "modules/pill"
+import "modules/surfaces"
+import "modules/osd"
 
 /**
  * Ukishima top shell. Each monitor carries two layer-shell windows:

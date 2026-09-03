@@ -5,9 +5,9 @@ import QtQuick.Shapes
 import Quickshell.Io
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 録 RECORD surface: drives gpu-screen-recorder through the ScreenRec singleton,

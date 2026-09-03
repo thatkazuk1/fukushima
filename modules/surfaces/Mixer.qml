@@ -2,9 +2,9 @@ import QtQuick
 import QtQuick.Effects
 import Quickshell.Io
 import Quickshell.Services.Pipewire
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * Mixer surface: header with DND / Keep-Awake chips and a row of four vertical

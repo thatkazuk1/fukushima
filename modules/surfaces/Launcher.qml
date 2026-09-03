@@ -3,11 +3,11 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "../config"
-import "../services"
-import "../lib/fuzzy.js" as Fuzzy
-import "../lib/calc.js" as Calc
-import "../components"
+import "../../config"
+import "../../services"
+import "../../lib/fuzzy.js" as Fuzzy
+import "../../lib/calc.js" as Calc
+import "../../components"
 
 /**
  * Launcher surface: search field over a ranked application list, drawn as one

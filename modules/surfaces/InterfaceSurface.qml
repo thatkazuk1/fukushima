@@ -1,9 +1,9 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 面 INTERFACE sub-surface: general shell behaviour that is not tied to the

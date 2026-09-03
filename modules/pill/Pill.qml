@@ -8,10 +8,11 @@ import Quickshell.Io
 import Quickshell.Networking
 import Quickshell.Bluetooth
 import Quickshell.Hyprland
-import "config"
-import "services"
-import "components"
-import "surfaces"
+import "../../config"
+import "../../services"
+import "../../components"
+import "../surfaces"
+import "../osd"
 
 /**
  * The pill body. One element carries every state. Width/height driven by `state`
@@ -2756,7 +2757,7 @@ Item {
 
     /**
      * OSD state controller only. The visible OSD now lives in its own
-     * decoupled popup (surfaces/OsdPopup.qml); this instance stays hidden and
+     * decoupled popup (modules/osd/OsdPopup.qml); this instance stays hidden and
      * just feeds the game-mode volume chip and toast-retire logic.
      */
     Osd {

@@ -2,9 +2,9 @@ import QtQuick
 import Quickshell.Widgets
 import Quickshell.Hyprland
 import Quickshell.Services.Pipewire
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 Item {
     id: root

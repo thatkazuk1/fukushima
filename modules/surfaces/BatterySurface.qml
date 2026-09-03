@@ -1,9 +1,9 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 蓄 BATTERY surface: a typographic read-out for the laptop battery. The

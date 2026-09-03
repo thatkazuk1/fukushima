@@ -3,9 +3,9 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * Row of icon buttons for windows parked on Hyprland's `special:minimized`

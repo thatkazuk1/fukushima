@@ -2,9 +2,9 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell.Io
-import "../config"
-import "../services"
-import "../components"
+import "../../config"
+import "../../services"
+import "../../components"
 
 /**
  * 系 SYSTEM surface: a flat washi card of live machine vitals fed by the Sysmon
