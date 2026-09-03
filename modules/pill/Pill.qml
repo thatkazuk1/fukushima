@@ -167,7 +167,7 @@ Item {
      * (with its 350ms grace) is what keeps the pill up while the cursor is near
      * it, so a cursor sitting on the strip's edge cannot bounce it.
      */
-    readonly property bool hidden: Flags.autoHide && !revealSession && !expanded && !dragActive
+    readonly property bool hidden: Flags.autoHide && !revealSession && !expanded && !dragInstall.active
         && !transientLive && mode !== "game"
 
     /**
@@ -412,7 +412,7 @@ Item {
         }
     }
 
-    readonly property string mode: dragActive ? "dragOver"
+    readonly property string mode: dragInstall.active ? "dragOver"
         : (surfaceOpen && surfaces[surface] !== undefined ? surface
         : (Flags.gameMode ? "game"
         : (quickChoosing ? "quickChoose"
@@ -420,14 +420,6 @@ Item {
         : (toastActive && Notifs.toastCritical && !held ? "toast"
         : (toastActive && !held ? "toast"
         : (expanded ? "hover" : "rest")))))))
-
-    /**
-     * AppImage drag-install state, live only while a file hovers the resting pill.
-     * `dragStage` walks hover -> installing -> done, or bad for a non-AppImage drop.
-     */
-    property bool dragActive: false
-    property string dragName: ""
-    property string dragStage: ""
 
     signal requestSurface(string name)
     signal requestClose()
@@ -1097,292 +1089,13 @@ Item {
         }
     }
 
-    property var installQueue: []
-
-    function localPath(url) {
-        var s = String(url);
-        if (s.indexOf("file://") === 0)
-            s = s.substring(7);
-        return decodeURIComponent(s);
-    }
-
-    readonly property var dropExt: /\.(appimage|deb|rpm|flatpakref|zip|tgz|txz|tbz2|ttf|otf|png|jpe?g|webp)$|\.(pkg\.)?tar\.(gz|xz|bz2|zst)$/i
-
-    function droppablePaths(urls) {
-        var out = [];
-        for (var i = 0; i < urls.length; i++)
-            if (pill.dropExt.test(String(urls[i])))
-                out.push(pill.localPath(urls[i]));
-        return out;
-    }
-
-    function dropLabel(urls) {
-        var p = pill.localPath(urls.length ? urls[0] : "");
-        return p.substring(p.lastIndexOf("/") + 1).replace(pill.dropExt, "");
-    }
-
-    property bool installedAny: false
-    property bool installedApp: false
-    property bool installFailed: false
-    property string installKind: "app"
-    property string installAction: "new"
-    property string installLine: ""
-    property string installProto: ""
-    property string installPct: ""
-    property int installSeconds: 0
-
-    function runNextInstall() {
-        if (pill.installQueue.length === 0) {
-            pill.dragStage = pill.installedAny ? "done" : "fail";
-            (pill.installedAny ? dropDoneTimer : dropBadTimer).restart();
-            return;
-        }
-        var next = pill.installQueue.shift();
-        pill.dragName = next.substring(next.lastIndexOf("/") + 1).replace(pill.dropExt, "");
-        pill.installLine = "";
-        pill.installProto = "";
-        pill.installPct = "";
-        installProc.command = ["bash", Config.hyprPath("scripts", "app-install.sh"), "install", next];
-        installProc.running = true;
-    }
-
-    /**
-     * Streams installer stdout instead of collecting it: slow backends (flatpak
-     * runtime pulls, pacman) narrate their steps, and the drop face mirrors the
-     * newest line live. The machine-readable result is the one tab-separated
-     * kind-prefixed line, fished out of the stream as it passes.
-     */
-    Process {
-        id: installProc
-        stdout: SplitParser {
-            onRead: (data) => {
-                var seg = data.split("\r").pop().replace(/\x1b\[[0-9;]*[a-zA-Z]/g, "").trim();
-                if (seg.length === 0)
-                    return;
-                if (/^(app|native|font|wallpaper)\t/.test(seg)) {
-                    pill.installProto = seg;
-                } else {
-                    pill.installLine = seg;
-                    var pct = seg.match(/(\d{1,3})\s*%/);
-                    if (pct && Number(pct[1]) <= 100)
-                        pill.installPct = pct[1] + "%";
-                }
-            }
-        }
-        onExited: (exitCode) => {
-            if (exitCode === 0 && pill.installProto.length > 0) {
-                pill.installedAny = true;
-                var parts = pill.installProto.split("\t");
-                pill.installKind = parts[0];
-                pill.installAction = parts[2];
-                if (parts[0] === "app" || parts[0] === "native")
-                    pill.installedApp = true;
-                if (parts[0] === "font" && parts.length >= 4)
-                    droppedFont.source = "file://" + parts[3];
-            } else {
-                pill.installFailed = true;
-            }
-            pill.runNextInstall();
-        }
-    }
-
-    Timer {
-        interval: 1000
-        repeat: true
-        running: pill.dragStage === "installing"
-        onTriggered: pill.installSeconds++
-    }
-
-    /**
-     * Registers a just-dropped font in this running process; the fontconfig
-     * cache alone only reaches apps started later. Ready -> the font picker's
-     * family list refreshes and the new face shows up without a restart.
-     */
-    FontLoader {
-        id: droppedFont
-        onStatusChanged: if (status === FontLoader.Ready) Theme.refreshFonts()
-    }
-
-    Timer {
-        id: dropDoneTimer
-        interval: 1100
-        onTriggered: {
-            pill.dragActive = false;
-            pill.dragStage = "";
-            if (pill.installedApp)
-                pill.requestSurface("launcher");
-        }
-    }
-
-    Timer {
-        id: dropBadTimer
-        interval: 1300
-        onTriggered: {
-            pill.dragActive = false;
-            pill.dragStage = "";
-        }
-    }
-
-    /**
-     * File drops land only on the resting pill; an open surface turns the pill
-     * into a fullscreen modal that swallows the drag before it can start.
-     * app-install.sh routes each drop by type (apps install, fonts land in the
-     * font dir, images become the wallpaper), anything else flashes a rejection.
-     */
-    DropArea {
+    DragInstall {
+        id: dragInstall
         anchors.fill: parent
-        enabled: !pill.surfaceOpen && pill.dragStage !== "installing" && pill.dragStage !== "done"
-        keys: ["text/uri-list"]
-        onEntered: (drag) => {
-            drag.acceptProposedAction();
-            pill.dragActive = true;
-            pill.dragStage = pill.droppablePaths(drag.urls).length > 0 ? "hover" : "bad";
-            pill.dragName = pill.dropLabel(drag.urls);
-        }
-        onExited: {
-            if (pill.dragStage === "hover" || pill.dragStage === "bad") {
-                pill.dragActive = false;
-                pill.dragStage = "";
-            }
-        }
-        onDropped: (drop) => {
-            drop.acceptProposedAction();
-            var files = pill.droppablePaths(drop.urls);
-            if (files.length === 0) {
-                pill.dragActive = true;
-                pill.dragStage = "bad";
-                pill.dragName = pill.dropLabel(drop.urls);
-                dropBadTimer.restart();
-                return;
-            }
-            pill.dragActive = true;
-            pill.dragStage = "installing";
-            pill.installedAny = false;
-            pill.installedApp = false;
-            pill.installFailed = false;
-            pill.installKind = "app";
-            pill.installAction = "new";
-            pill.installSeconds = 0;
-            pill.installQueue = files;
-            pill.runNextInstall();
-        }
-    }
-
-    /**
-     * Drop-zone face: corner brackets frame a stage glyph and label that walk
-     * from "drop to install" through the spinner to a checkmark. Shares the morph
-     * fade of the other pill faces, so it grows in as the pill reaches its size.
-     */
-    Item {
-        id: dragOverView
-        anchors.fill: parent
-        anchors.margins: 11 * pill.s
-        enabled: pill.mode === "dragOver"
-        opacity: pill.mode === "dragOver" ? Math.pow(pill.morphCloseness, 1.2) : 0
-        visible: opacity > 0.01
-
-        Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-
-        readonly property color accent: (pill.dragStage === "bad" || pill.dragStage === "fail") ? "#e0533f" : Theme.vermLit
-        readonly property real brLen: 15 * pill.s
-        readonly property real brThick: 2 * pill.s
-
-        Repeater {
-            model: [[0, 0], [1, 0], [0, 1], [1, 1]]
-            delegate: Item {
-                id: corner
-                required property var modelData
-                readonly property bool rightSide: modelData[0] === 1
-                readonly property bool bottomSide: modelData[1] === 1
-                x: rightSide ? dragOverView.width - dragOverView.brLen : 0
-                y: bottomSide ? dragOverView.height - dragOverView.brLen : 0
-                width: dragOverView.brLen
-                height: dragOverView.brLen
-
-                Rectangle {
-                    width: dragOverView.brLen
-                    height: dragOverView.brThick
-                    radius: dragOverView.brThick / 2
-                    color: dragOverView.accent
-                    anchors.top: corner.bottomSide ? undefined : parent.top
-                    anchors.bottom: corner.bottomSide ? parent.bottom : undefined
-                    anchors.left: corner.rightSide ? undefined : parent.left
-                    anchors.right: corner.rightSide ? parent.right : undefined
-                }
-                Rectangle {
-                    width: dragOverView.brThick
-                    height: dragOverView.brLen
-                    radius: dragOverView.brThick / 2
-                    color: dragOverView.accent
-                    anchors.top: corner.bottomSide ? undefined : parent.top
-                    anchors.bottom: corner.bottomSide ? parent.bottom : undefined
-                    anchors.left: corner.rightSide ? undefined : parent.left
-                    anchors.right: corner.rightSide ? parent.right : undefined
-                }
-            }
-        }
-
-        Column {
-            anchors.centerIn: parent
-            width: parent.width - 44 * pill.s
-            spacing: 7 * pill.s
-
-            Item {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: 26 * pill.s
-                height: 26 * pill.s
-
-                GlyphIcon {
-                    id: dragGlyph
-                    anchors.fill: parent
-                    stroke: 2
-                    color: dragOverView.accent
-                    name: (pill.dragStage === "bad" || pill.dragStage === "fail") ? "close"
-                        : (pill.dragStage === "installing" ? "reboot"
-                        : (pill.dragStage === "done" ? "check" : "download"))
-
-                    RotationAnimation on rotation {
-                        running: pill.dragStage === "installing"
-                        loops: Animation.Infinite
-                        from: 0
-                        to: 360
-                        duration: 900
-                    }
-                    onNameChanged: if (pill.dragStage !== "installing") rotation = 0
-                }
-            }
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: pill.dragStage === "bad" ? "Can't install this"
-                    : (pill.dragStage === "fail" ? "Install failed"
-                    : (pill.dragStage === "installing" ? ("Installing"
-                        + (pill.installPct.length > 0 ? " " + pill.installPct : "")
-                        + (pill.installSeconds >= 3 ? "  " + Math.floor(pill.installSeconds / 60) + ":" + String(pill.installSeconds % 60).padStart(2, "0") : ""))
-                    : (pill.dragStage === "done" ? (pill.installFailed ? "Installed, some failed"
-                        : (!pill.installedApp && pill.installKind === "wallpaper" ? "Wallpaper set"
-                        : (!pill.installedApp && pill.installKind === "font" ? "Font installed"
-                        : (pill.installAction === "updated" ? "Updated"
-                        : (pill.installAction === "reinstalled" ? "Reinstalled" : "Installed")))))
-                    : "Drop to install")))
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 13 * pill.s
-                font.weight: Font.Medium
-            }
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width
-                horizontalAlignment: Text.AlignHCenter
-                text: pill.dragStage === "installing" && pill.installLine.length > 0 ? pill.installLine : pill.dragName
-                color: Theme.subtle
-                font.family: Theme.font
-                font.pixelSize: 11 * pill.s
-                elide: Text.ElideMiddle
-                maximumLineCount: 1
-            }
-        }
+        s: pill.s
+        morphCloseness: pill.morphCloseness
+        surfaceOpen: pill.surfaceOpen
+        onRequestSurface: (name) => pill.requestSurface(name)
     }
 
     GameBar {
@@ -1397,7 +1110,7 @@ Item {
     Item {
         id: rest
         anchors.fill: parent
-        opacity: (pill.expanded || pill.dragActive || pill.mode === "game" || pill.mode === "toast" || pill.mode === "quickChoose" || pill.mode === "quickCount") ? 0 : Math.pow(pill.morphCloseness, 1.5)
+        opacity: (pill.expanded || dragInstall.active || pill.mode === "game" || pill.mode === "toast" || pill.mode === "quickChoose" || pill.mode === "quickCount") ? 0 : Math.pow(pill.morphCloseness, 1.5)
         visible: opacity > 0.01
         Behavior on opacity { NumberAnimation { duration: pill.mode === "rest" ? Motion.fast : Math.round(260 * Motion.mult) } }
 
