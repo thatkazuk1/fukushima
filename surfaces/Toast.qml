@@ -3,7 +3,6 @@ import QtQuick
 import Quickshell
 import Quickshell.Services.Notifications
 import "../Singletons"
-import "../components"
 
 /**
  * Toast content for the morphing pill body: icon tile, app eyebrow, summary

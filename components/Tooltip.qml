@@ -34,9 +34,13 @@ Item {
     height: bubble.height + pointerH
     z: 20
 
+    // `align` selects exactly one horizontal anchor; the other two resolve to
+    // undefined at runtime, so this is never a real anchor conflict.
+    // qmllint disable Quick.anchor-combinations
     anchors.horizontalCenter: root.align === "center" ? parent.horizontalCenter : undefined
     anchors.left: root.align === "left" ? parent.left : undefined
     anchors.right: root.align === "right" ? parent.right : undefined
+    // qmllint enable Quick.anchor-combinations
     anchors.bottom: below ? undefined : parent.top
     anchors.bottomMargin: below ? 0 : gap
     anchors.top: below ? parent.bottom : undefined
@@ -62,9 +66,11 @@ Item {
 
     Rectangle {
         id: bubble
+        // qmllint disable Quick.anchor-combinations
         anchors.horizontalCenter: root.align === "center" ? parent.horizontalCenter : undefined
         anchors.left: root.align === "left" ? parent.left : undefined
         anchors.right: root.align === "right" ? parent.right : undefined
+        // qmllint enable Quick.anchor-combinations
         anchors.top: root.below ? undefined : parent.top
         anchors.bottom: root.below ? parent.bottom : undefined
         width: Math.max(titleText.implicitWidth, descText.implicitWidth) + 22 * root.s
@@ -114,9 +120,11 @@ Item {
     Canvas {
         width: 11 * root.s
         height: root.pointerH
+        // qmllint disable Quick.anchor-combinations
         anchors.horizontalCenter: root.align === "center" ? parent.horizontalCenter : undefined
         anchors.left: root.align === "left" ? parent.left : undefined
         anchors.right: root.align === "right" ? parent.right : undefined
+        // qmllint enable Quick.anchor-combinations
         anchors.top: root.below ? parent.top : undefined
         anchors.bottom: root.below ? undefined : parent.bottom
         onPaint: {
