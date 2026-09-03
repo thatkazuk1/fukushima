@@ -287,13 +287,13 @@ ShellRoot {
          * user pressed on, not whatever the compositor calls active afterwards.
          */
         function minimizeWindow(addr: string): void {
-            Hyprland.dispatch('hl.dsp.window.move({ workspace = "special:minimized", follow = false, window = "address:' + addr + '" })');
+            Hyprland.dispatch('movetoworkspacesilent special:minimized,address:' + addr);
         }
         function restoreWindow(arg: string): void {
             var p = arg.split("|");
             if (p.length < 2 || p[0].length === 0)
                 return;
-            Hyprland.dispatch('hl.dsp.window.move({ workspace = "' + p[1] + '", window = "address:' + p[0] + '" })');
+            Hyprland.dispatch('movetoworkspace ' + p[1] + ',address:' + p[0]);
         }
     }
 
