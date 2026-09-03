@@ -1,0 +1,14 @@
+/.dev/
+
+/node_modules/
+
+*.swp
+*.swo
+*~
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+/.qmlls.ini

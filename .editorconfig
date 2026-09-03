@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# QML and the JS logic modules it loads
+[*.{qml,js,mjs}]
+indent_size = 4
+
+[*.{sh,bash}]
+indent_size = 2
+
+[*.{json,jsonc,yml,yaml,xml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[Justfile]
+indent_style = tab

@@ -1,0 +1,17 @@
+{
+  // Point the Qt extension's bundled tooling at the system Qt 6 install.
+  // Adjust if `qmllint`/`qmlls` live elsewhere on your machine
+  // (find with: dirname "$(find /usr/lib -name qmlls 2>/dev/null | head -1)").
+  "qt-qml.qmlls.customExePath": "/usr/lib/qt6/bin/qmlls",
+  "qt-qml.qmlls.useQmlImportPathEnvVar": true,
+
+  "files.associations": {
+    "*.qml": "qml",
+    "Justfile": "just"
+  },
+  "[qml]": {
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true
+  },
+  "editor.formatOnSave": false
+}
