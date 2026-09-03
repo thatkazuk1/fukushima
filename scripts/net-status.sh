@@ -18,9 +18,13 @@
 #   internet_ping_ms 12.1
 set -u
 
-probe=1.1.1.1
+# Two well-connected anycast resolvers; internet latency is the lower of the
+# two so one badly-routed anycast path (e.g. an ISP that hauls 1.1.1.1 to
+# another continent) doesn't skew the figure.
+probes="1.1.1.1 8.8.8.8"
+route_probe=1.1.1.1
 
-route=$(ip -j route get "$probe" 2>/dev/null)
+route=$(ip -j route get "$route_probe" 2>/dev/null)
 [ -n "$route" ] || exit 0
 
 iface=$(printf '%s' "$route" | jq -r '.[0].dev // empty' 2>/dev/null)
@@ -62,8 +66,9 @@ else
 fi
 
 # Router + internet latency, in parallel, one packet each, 1s ceiling. A line
-# is only printed when the probe answered; a missing line is a timeout the
-# service records as packet loss.
+# is only printed when a probe answered; a missing internet line is a timeout
+# the service records as packet loss. Internet latency is the lower of the two
+# resolver probes.
 ping_ms() {
     LC_ALL=C ping -n -c1 -W1 "$1" 2>/dev/null \
         | awk -F'time[=<]' '/time[=<]/{split($2,a," "); print a[1]; exit}'
@@ -71,8 +76,10 @@ ping_ms() {
 
 tmp=$(mktemp -d) || exit 0
 [ -n "$gateway" ] && { ping_ms "$gateway" >"$tmp/r" & }
-ping_ms "$probe" >"$tmp/i" &
+for h in $probes; do ping_ms "$h" >"$tmp/i.$h" & done
 wait
+
 [ -s "$tmp/r" ] && printf 'router_ping_ms\t%s\n' "$(cat "$tmp/r")"
-[ -s "$tmp/i" ] && printf 'internet_ping_ms\t%s\n' "$(cat "$tmp/i")"
+best=$(cat "$tmp"/i.* 2>/dev/null | awk 'NF{print}' | sort -g | head -n1)
+[ -n "$best" ] && printf 'internet_ping_ms\t%s\n' "$best"
 rm -rf "$tmp"

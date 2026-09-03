@@ -73,22 +73,22 @@ Item {
         // qmllint enable Quick.anchor-combinations
         anchors.top: root.below ? undefined : parent.top
         anchors.bottom: root.below ? parent.bottom : undefined
-        width: Math.max(titleText.implicitWidth, descText.implicitWidth) + 22 * root.s
-        height: column.implicitHeight + 14 * root.s
-        radius: 9 * root.s
+        width: Math.max(titleText.implicitWidth, descText.implicitWidth) + 20 * root.s
+        height: column.implicitHeight + 12 * root.s
+        radius: 8 * root.s
+        // A lifted, opaque tone — the pill body behind is the same cardTop/cardBot
+        // gradient, so a gradient bubble would vanish into it. Solid ghost + a
+        // real border reads as a hint floating over the content.
+        color: Theme.ghost
         border.width: 1
-        border.color: Theme.frameBorder
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: Theme.cardTop }
-            GradientStop { position: 1.0; color: Theme.cardBot }
-        }
+        border.color: Theme.border
 
         layer.enabled: true
         layer.effect: MultiEffect {
             shadowEnabled: true
-            shadowColor: Theme.shadow
-            shadowBlur: 0.6
-            shadowVerticalOffset: 4 * root.s
+            shadowColor: Qt.rgba(0, 0, 0, 0.6)
+            shadowBlur: 0.9
+            shadowVerticalOffset: 5 * root.s
         }
     }
 
@@ -130,7 +130,7 @@ Item {
         onPaint: {
             var ctx = getContext("2d");
             ctx.reset();
-            ctx.fillStyle = Theme.cardBot;
+            ctx.fillStyle = Theme.ghost;
             ctx.beginPath();
             if (root.below) {
                 ctx.moveTo(0, height);
