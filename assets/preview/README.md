@@ -2,7 +2,7 @@
 
 A full gallery of Ukishima screenshots. The main README shows only a few highlights; here are all of them.
 
-[Back to main README](../README.md)
+[Back to main README](../../README.md)
 
 ![Preview 1](mpv-shot0001.jpg)
 

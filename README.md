@@ -44,7 +44,7 @@ This is a fork. See [Acknowledgements](#acknowledgements) for the lineage.
 
 ## Preview
 
-See the [preview gallery](preview/README.md) for screenshots. These predate this
+See the [preview gallery](assets/preview/README.md) for screenshots. These predate this
 fork and will be refreshed once it diverges visually.
 
 ## Project Status
