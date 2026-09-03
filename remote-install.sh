@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-REPO="https://github.com/amanhex/Ukishima.git"
+REPO="https://github.com/thatkazuk1/ukishima.git"
 INSTALL_ROOT="${HOME}/.local/share/quickshell/ukishima"
 
 if [ -d "$INSTALL_ROOT" ]; then
