@@ -77,9 +77,12 @@ Rules:
 
 ## Known debt
 
-- **`modules/pill/Pill.qml`** is one ~3000-line `Item` holding the state for
-  every surface. The next refactor splits it into per-concern controllers in
-  place.
+- **`modules/pill/Pill.qml`** is a ~2350-line `Item` (down from ~3000) that
+  still holds the state for every surface and the two big view sub-trees
+  (`rest` collapsed faces, `hover` module row) plus the ~20 surface Loaders.
+  Extracted so far: `GameBar`, `DragInstall`, `QuickRecordChooser`. The
+  remaining cuts (the faces, the hover row, a `SurfaceStack`) are more coupled
+  and want their interface designed rather than lifted.
 - **`config/Flags.qml`** is a single flat `JsonAdapter` with ~60 properties;
   it wants grouping (`record.*`, `night.*`, `wallpaper.*`, `ui.*`).
 - **`hypr/decoration.lua`**, `services/Spaces.qml`'s lua writer, and

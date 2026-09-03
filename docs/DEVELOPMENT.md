@@ -112,8 +112,13 @@ After changing a **singleton** (or anything not hot-reloadable), restart:
 
 ```bash
 qs kill
-hyprctl dispatch exec 'bash -lc "exec quickshell"'
+hyprctl dispatch exec quickshell
 ```
+
+**Large structural edits: stop the shell first.** Quickshell 0.3.1 can crash
+during engine teardown on rapid consecutive hot-reloads (saving several files in
+a row). For a multi-file refactor, `qs kill`, make all the changes, `just
+check`, then start it once.
 
 To try something risky **without touching live state**, run a throwaway
 instance with its own `./.dev/` state/cache (git-ignored):
