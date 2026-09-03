@@ -1,5 +1,6 @@
 singleton Backlight Backlight.qml
 singleton Battery Battery.qml
+singleton BatteryAlerts BatteryAlerts.qml
 singleton Cava Cava.qml
 singleton Cliphist Cliphist.qml
 singleton Devices Devices.qml
@@ -12,6 +13,7 @@ singleton Players Players.qml
 singleton ScreenRec ScreenRec.qml
 singleton Spaces Spaces.qml
 singleton Sysmon Sysmon.qml
+singleton UpdateToast UpdateToast.qml
 singleton Walls Walls.qml
 singleton Weather Weather.qml
 singleton Workspacerules Workspacerules.qml

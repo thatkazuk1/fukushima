@@ -35,56 +35,6 @@ ShellRoot {
     property string openSurface: ""
     property string peekMon: ""
 
-    /**
-     * Battery notification latches, change-triggered by UPower (never polled).
-     * Low battery escalates down the levels — 25% then 20% fire once each as a
-     * normal warning, and 15% opens a critical announcement that repeats every
-     * ten minutes until the battery is plugged in. The latch re-arms when the
-     * battery charges or rises back above 25%. Full fires once when the battery
-     * reports fully charged, so charge-limited systems (e.g. an 80% cut-off)
-     * announce at their actual full point.
-     */
-    property int battNotifiedBelow: 100
-    property bool fullBattNotified: false
-
-    function battNote(urgency, summary, body) {
-        battNoteProc.command = urgency.length > 0
-            ? ["notify-send", "-a", "Ukishima", "-u", urgency, summary, body]
-            : ["notify-send", "-a", "Ukishima", summary, body];
-        battNoteProc.running = true;
-    }
-
-    /**
-     * One-shot level crossings on the way down, lowest threshold first, so a
-     * battery already below several levels (e.g. booting at 18%) only announces
-     * the most urgent one it has passed — 20% there, never 25% and 20% together.
-     * At or below the critical level the repeat timer takes over.
-     */
-    function battCheck() {
-        if (!Battery.present)
-            return;
-        if (!Battery.discharging || Battery.pct > 25) {
-            root.battNotifiedBelow = 100;
-            if (root.battRepeatTimer)
-                root.battRepeatTimer.stop();
-            return;
-        }
-        var levels = [[15, "critical"], [20, "normal"], [25, "normal"]];
-        for (var i = 0; i < levels.length; i++) {
-            if (Battery.pct <= levels[i][0] && levels[i][0] < root.battNotifiedBelow) {
-                root.battNotifiedBelow = levels[i][0];
-                var critical = levels[i][1] === "critical";
-                root.battNote(critical ? "critical" : "normal",
-                    critical ? "Battery critical" : "Low battery",
-                    Battery.pct + "% remaining — plug in your charger"
-                    + (critical ? " now." : " soon."));
-                break;
-            }
-        }
-        if (Battery.pct <= 15 && root.battRepeatTimer && !root.battRepeatTimer.running)
-            root.battRepeatTimer.start();
-    }
-
     function refresh() {
         Hyprland.refreshMonitors();
         Hyprland.refreshWorkspaces();
@@ -95,65 +45,8 @@ ShellRoot {
         refresh();
         Devices.restore();
         void GameMode.active;
-        root.battCheck();
-    }
-
-    Process {
-        id: battNoteProc
-    }
-
-    Timer {
-        id: battRepeatTimer
-        interval: 10 * 60 * 1000
-        repeat: true
-        onTriggered: {
-            if (!Battery.present || !Battery.discharging || Battery.pct > 15) {
-                stop();
-                return;
-            }
-            root.battNote("critical", "Battery critical",
-                Battery.pct + "% remaining — plug in your charger now.");
-        }
-    }
-
-    Connections {
-        target: Battery
-        function onPctChanged() { root.battCheck(); }
-        function onDischargingChanged() { root.battCheck(); }
-        function onFullChanged() {
-            if (!Battery.present)
-                return;
-            if (Battery.full && !root.fullBattNotified) {
-                root.fullBattNotified = true;
-                root.battNote("normal", "Battery full",
-                    Battery.pct + "% — you can unplug.");
-            } else if (!Battery.full) {
-                root.fullBattNotified = false;
-            }
-        }
-    }
-
-    /**
-     * After an update relaunches the shell, raise a one-shot toast naming what
-     * landed, so the apply ends in a confirmation instead of a silent restart. The
-     * updater drops the marker just before it restarts; the short delay lets the
-     * notification server own the bus before we post to it, and the marker is
-     * removed as it is read so the toast only ever fires once.
-     */
-    Timer {
-        interval: 2500
-        running: true
-        onTriggered: updatedToast.running = true
-    }
-    Process {
-        id: updatedToast
-        command: ["sh", "-c",
-            "m=\"${XDG_STATE_HOME:-$HOME/.local/state}/ukishima/updated\"; [ -f \"$m\" ] || exit 0; "
-            + "b=$(cat \"$m\"); rm -f \"$m\"; "
-            + "gdbus call --session --dest org.freedesktop.Notifications "
-            + "--object-path /org/freedesktop/Notifications "
-            + "--method org.freedesktop.Notifications.Notify "
-            + "Pill 0 '' 'Pill updated' \"$b\" '[]' '{}' 5000 >/dev/null 2>&1"]
+        void BatteryAlerts.armed;
+        void UpdateToast.armed;
     }
 
     PanelWindow {
