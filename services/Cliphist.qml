@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../config"
 
 /**
  * cliphist bridge: keeps a warm in-memory snapshot of the clipboard history so

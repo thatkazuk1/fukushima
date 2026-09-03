@@ -3,7 +3,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell.Io
 import Quickshell.Bluetooth
-import "../Singletons"
+import "../config"
+import "../services"
 import "../components"
 
 /**

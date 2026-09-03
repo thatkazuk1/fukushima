@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
-import "../Singletons"
+import "../config"
 
 Item {
     id: root

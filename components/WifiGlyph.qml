@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Shapes
-import "../Singletons"
+import "../config"
 
 /**
  * Hand-drawn wifi glyph: three concentric arcs over a base dot, the lit-arc

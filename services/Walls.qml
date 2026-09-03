@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../config"
 
 /**
  * Wallpaper bridge: keeps a warm in-memory snapshot of the wallpaper folder so

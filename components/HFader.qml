@@ -1,5 +1,5 @@
 import QtQuick
-import "../Singletons"
+import "../config"
 
 /**
  * Horizontal capture-level fader for the recorder's audio rows: a thin matte

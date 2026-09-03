@@ -5,7 +5,8 @@ import QtQuick.Shapes
 import Quickshell.Io
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
-import "../Singletons"
+import "../config"
+import "../services"
 import "../components"
 
 /**

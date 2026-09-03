@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import "../services"
 
 /**
  * Pill palette. Two sources: the curated light/dark hex below is the identity

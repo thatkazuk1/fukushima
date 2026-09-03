@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../config"
 
 /**
  * Screen-recorder backend, shared by the 録 RECORD surface, the pill's hover

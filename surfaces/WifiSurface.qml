@@ -5,7 +5,8 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Networking
-import "../Singletons"
+import "../config"
+import "../services"
 import "../components"
 
 /**

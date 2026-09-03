@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Services.Mpris
 import Quickshell.Hyprland
+import "../config"
 
 /**
  * The one now-playing source the pill views read: the media surface, the source

@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../config"
 
 /**
  * Live weather for the pill's hover glance, served by Open-Meteo with no API key.

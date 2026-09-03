@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../config"
 
 /**
  * Live audio spectrum for the rest-pill visualizer. A headless cava captures the

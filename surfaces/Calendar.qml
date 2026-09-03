@@ -3,7 +3,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import Quickshell
-import "../Singletons"
+import "../config"
+import "../services"
 import "../components"
 
 /**

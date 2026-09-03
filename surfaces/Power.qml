@@ -4,7 +4,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Widgets
-import "../Singletons"
+import "../config"
+import "../services"
 import "../components"
 
 /**

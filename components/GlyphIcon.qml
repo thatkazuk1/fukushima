@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Shapes
-import "../Singletons"
+import "../config"
 
 /**
  * Self-contained vector glyph drawn from baked SVG path data, so the pill never

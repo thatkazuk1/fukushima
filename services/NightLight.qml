@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../config"
 
 /**
  * 灯 Night-light controller over hyprsunset, the Hyprland blue-light filter.

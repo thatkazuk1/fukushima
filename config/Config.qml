@@ -6,14 +6,13 @@ import Quickshell
  * Path authority for the pill, kept as one self-locating source of truth. The
  * app root is this file's own directory tree (the quickshell project folder),
  * so nothing depends on where the shell was launched from or on exported
- * UKISHIMA_* environment variables. Hyprland-compat outputs (generated modules/*,
- * hypridle.conf, hyprsunset.conf and scripts/) all resolve under the same
- * project folder.
+ * UKISHIMA_* environment variables. Hyprland-compat outputs (hypr/*,
+ * hyprsunset.conf and scripts/) all resolve under the same project folder.
  */
 Singleton {
     id: root
 
-    /** Absolute filesystem path of the quickshell project folder (parent of Singletons/). */
+    /** Absolute filesystem path of the quickshell project folder (parent of config/). */
     readonly property string configDir: {
         var p = root._localPath(Qt.resolvedUrl("../"));
         return p.length > 1 && p.slice(-1) === "/" ? p.slice(0, -1) : p;

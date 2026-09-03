@@ -4,7 +4,8 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io
 import Quickshell.Hyprland
-import "../Singletons"
+import "../config"
+import "../services"
 
 /**
  * Workspace dots for one monitor. No numbers, no icons. Active one is a larger

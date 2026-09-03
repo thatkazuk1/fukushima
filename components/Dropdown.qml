@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Effects
-import "../Singletons"
+import "../config"
 
 /**
  * Compact header dropdown for the wallpaper strip: a chip that opens a small
