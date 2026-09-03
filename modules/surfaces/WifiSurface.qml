@@ -33,7 +33,11 @@ PillSurface {
     readonly property bool wifiOn: (typeof Networking !== "undefined" && Networking) ? Networking.wifiEnabled : false
     readonly property var nets: (wifiDev && wifiDev.networks) ? wifiDev.networks.values : []
     readonly property var netsSorted: nets.slice().sort(function(a, b) {
-        return ((b ? b.signalStrength : 0) || 0) - ((a ? a.signalStrength : 0) || 0)
+        var ar = a && a.connected ? 2 : (a && root.knownProfiles[a.name] === true ? 1 : 0);
+        var br = b && b.connected ? 2 : (b && root.knownProfiles[b.name] === true ? 1 : 0);
+        if (ar !== br)
+            return br - ar;
+        return ((b ? b.signalStrength : 0) || 0) - ((a ? a.signalStrength : 0) || 0);
     })
     readonly property var activeNet: nets.find(function(n) { return n && n.connected }) || null
     readonly property string statusText: !wifiOn ? "Off"
@@ -809,6 +813,7 @@ PillSurface {
                     Column {
                         id: netItem
                         required property var modelData
+                        required property int index
                         readonly property string ssid: (modelData && modelData.name) ? modelData.name : ""
                         readonly property bool isActive: modelData ? modelData.connected === true : false
                         readonly property bool secured: root.isSecured(ssid)
@@ -818,6 +823,37 @@ PillSurface {
                         readonly property bool asking: expanded && !confirming
                         width: netCol.width
                         spacing: 2 * root.s
+
+                        /**
+                         * Section header shown above this row: "KNOWN NETWORKS" at
+                         * the top of the saved block, "OTHER NETWORKS" at the first
+                         * unsaved row. netsSorted groups connected → known → signal
+                         * so the two blocks are contiguous.
+                         */
+                        readonly property bool inKnown: netItem.isActive || netItem.known
+                        readonly property string section: {
+                            var rows = root.netsSorted;
+                            if (netItem.index === 0)
+                                return netItem.inKnown ? "KNOWN NETWORKS" : "OTHER NETWORKS";
+                            var prev = rows[netItem.index - 1];
+                            var prevKnown = prev && (prev.connected === true || root.knownProfiles[prev.name] === true);
+                            return (prevKnown && !netItem.inKnown) ? "OTHER NETWORKS" : "";
+                        }
+
+                        Text {
+                            visible: netItem.section.length > 0
+                            height: visible ? 20 * root.s : 0
+                            leftPadding: 10 * root.s
+                            topPadding: netItem.index === 0 ? 0 : 8 * root.s
+                            verticalAlignment: Text.AlignBottom
+                            text: netItem.section
+                            color: Theme.subtle
+                            font.family: Theme.font
+                            font.pixelSize: 9 * root.s
+                            font.weight: Font.DemiBold
+                            font.capitalization: Font.AllUppercase
+                            font.letterSpacing: 1.4 * root.s
+                        }
 
                         function syncPwField() {
                             pwField.text = root.pwDraft;
