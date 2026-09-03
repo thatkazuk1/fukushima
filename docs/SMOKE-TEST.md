@@ -6,16 +6,13 @@ that changes here is a regression to investigate before moving on.
 
 ## How to run it
 
-```bash
-just dev        # isolated instance, its own state under ./.dev/
-```
+The repo is the live shell, so a QML change is already on screen. Drive surfaces
+with `just ipc <handler>` or the real keybinds. Work top to bottom; tick what
+still holds. A full pass is ~10 minutes.
 
-The dev instance draws its own pill on top of your normal one. Drive surfaces
-with `just ipc <handler>` (see the table) or the real keybinds if you've bound
-them. Work top to bottom; tick what still holds. A full pass is ~10 minutes.
-
-For a settings-heavy change, `just dev-clean` first so you're testing
-first-run defaults, not your saved `.dev/` state.
+To test against first-run defaults instead of your saved settings, use a
+throwaway instance: `qs kill` (stop the live shell), then `just dev` +
+`just dev-clean`.
 
 Legend: **T** = how to trigger · **E** = expected
 
@@ -23,7 +20,7 @@ Legend: **T** = how to trigger · **E** = expected
 
 ## 1. Resting pill (collapsed face)
 
-Set the face in Appearance → Display, or edit `.dev/state/ukishima/flags.json`
+Set the face in Appearance → Display, or edit `~/.local/state/ukishima/flags.json`
 `mainDisplay`.
 
 - [ ] **minimal** — T: default · E: Japanese glyph + time only, centred capsule
@@ -178,7 +175,7 @@ returns to the index, empty click / cog closes.
 
 ---
 
-## 8. Singletons / live reactivity
+## 8. Services / live reactivity
 
 - [ ] **Battery notifications** — discharging past 25 % / 20 % fire once each;
       15 % opens a critical announce that repeats every 10 min until plugged in;

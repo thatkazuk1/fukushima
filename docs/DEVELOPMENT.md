@@ -15,31 +15,37 @@ The stack, from the bottom up:
 | Layer | What it gives you | Where you see it |
 | --- | --- | --- |
 | **QML** — the language | Declarative object tree with JavaScript expressions and functions. Familiar if you've seen JSON + JS. | every `.qml` file |
-| **Qt Quick** — the toolkit | The visual primitives: `Item`, `Rectangle`, `Text`, `MouseArea`, `Image`, plus animations, `Behavior`, `states`, `Loader`. | `components/`, `surfaces/`, `Pill.qml` |
-| **Quickshell** — the shell runtime | Desktop-shell types Qt doesn't have: `PanelWindow` (a Wayland layer-shell surface), `Variants` (one delegate per screen), `IpcHandler`, `FileView` + `JsonAdapter` (config files), `Process` (subprocesses), and the `Quickshell.Hyprland` / `.Wayland` / `.Io` modules. | `shell.qml`, `Singletons/` |
-| **Hyprland** | The Wayland compositor Ukishima decorates and talks to over `hyprctl` IPC. | `Singletons/Spaces.qml`, `lib/monitors.js` |
+| **Qt Quick** — the toolkit | The visual primitives: `Item`, `Rectangle`, `Text`, `MouseArea`, `Image`, plus animations, `Behavior`, `states`, `Loader`. | `components/`, `modules/` |
+| **Quickshell** — the shell runtime | Desktop-shell types Qt doesn't have: `PanelWindow` (a Wayland layer-shell surface), `Variants` (one delegate per screen), `IpcHandler`, `FileView` + `JsonAdapter` (config files), `Process` (subprocesses), and the `Quickshell.Hyprland` / `.Wayland` / `.Io` modules. | `shell.qml`, `services/` |
+| **Hyprland** | The Wayland compositor Ukishima decorates and talks to over `hyprctl` IPC. | `services/Spaces.qml`, `lib/monitors.js` |
 
 Practical consequence: the dev loop is **edit a file → reload the shell → look at
 it**. You will never run `qmake` or `cmake`.
 
 ### The shape of the code
 
-- **`shell.qml`** — the root. Creates, per monitor, a zero-height "reserve"
-  window (claims an exclusive zone so tiled windows sit below the pill) and a
-  full-screen transparent "overlay" window hosting the pill. Also holds the IPC
-  handlers and the battery-notification logic.
-- **`Pill.qml`** — the morphing pill itself. Currently one enormous `Item` that
-  holds the state for every surface (this is the main target of the refactor).
-- **`surfaces/`** — the panels that grow out of the pill (launcher, wallpaper,
-  mixer, calendar, …). Each is loaded on demand.
-- **`components/`** — small reusable widgets (faders, dropdown, tray, tooltip).
-- **`Singletons/`** — global state objects, one instance process-wide
-  (`Battery`, `Flags` for persisted settings, `Theme`, `Players`, …). Declared
-  in `Singletons/qmldir`.
-- **`lib/`** — pure JavaScript with no QML dependencies, so it can be unit
-  tested with plain Node (`lib/monitors.js` + `lib/monitors.test.mjs`).
-- **`scripts/`** — shell helpers invoked via `Process` (wallpaper application,
-  thumbnails, palette generation, game mode).
+The layout follows the standard Quickshell config convention — see
+[`ARCHITECTURE.md`](ARCHITECTURE.md) for the full picture.
+
+- **`shell.qml`** — the root (must be at the repo root). Creates, per monitor, a
+  zero-height "reserve" window (claims an exclusive zone so tiled windows sit
+  below the pill) and a full-screen transparent "overlay" window hosting the
+  pill. Also holds the IPC handlers and the battery-notification logic.
+- **`config/`** — settings singletons (`Config`, `Flags`) and design tokens
+  (`Theme`, `Motion`). Declared `singleton` in `config/qmldir`.
+- **`services/`** — the 17 system-state providers (`Battery`, `Weather`,
+  `Players`, `Cava`, `Sysmon`, `Notifs`, …). `services/qmldir`.
+- **`components/`** — small reusable primitives (faders, dropdown, tray, tooltip).
+- **`modules/`** — the shell features:
+  - `modules/pill/Pill.qml` — the morphing pill. Still one enormous `Item`
+    holding the state for every surface (the next refactor target).
+  - `modules/surfaces/` — the panels that grow out of the pill. Loaded on demand.
+  - `modules/osd/` — the volume/brightness/workspace flash.
+- **`lib/`** — pure JavaScript, no QML deps, unit-tested with plain Node.
+- **`scripts/`** — shell helpers invoked via `Process`. Stays at the repo root
+  because Hyprland keybinds reference `~/.config/quickshell/scripts/…` by path.
+- **`hypr/`** — Hyprland-side fragments (`decoration.lua`, `hyprsunset.conf`).
+- **`assets/`** — bundled media (the preview gallery).
 
 ## 2. Prerequisites
 
@@ -163,8 +169,11 @@ no dependencies). This keeps the logic exercisable in CI without a compositor.
 
 - 4-space indent, `lf`, final newline (`.editorconfig` enforces).
 - One QML component per file; register it in the directory's `qmldir`.
-- `Singletons/` is capital-S; its entries are `singleton` in `Singletons/qmldir`.
-- Persisted settings go through `Singletons/Flags.qml` (a `JsonAdapter` over
+- A singleton is `config/` if it holds settings or design tokens, `services/`
+  if it models live system state.
+- Persisted settings go through `config/Flags.qml` (a `JsonAdapter` over
   `$XDG_STATE_HOME/ukishima/flags.json`).
+- Import `config/` and `services/` only where actually used — `qmllint` flags a
+  dead directory import.
 - Keep block comments explaining *why* — the existing ones are load-bearing
   documentation of hard-won Wayland/Hyprland behaviour.
