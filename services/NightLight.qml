@@ -17,7 +17,7 @@ import "../config"
 Singleton {
     id: root
 
-    readonly property string confPath: Config.hyprPath("hyprsunset.conf")
+    readonly property string confPath: Config.hyprPath("hypr", "hyprsunset.conf")
     property bool available: false
     property string pendingMode: ""
 

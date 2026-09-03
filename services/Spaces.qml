@@ -22,8 +22,8 @@ import "../lib/binds.js" as Binds
 Singleton {
     id: root
 
-    readonly property string path: Config.hyprPath("modules", "spaces.lua")
-    readonly property string bindsPath: Config.hyprPath("modules", "binds.lua")
+    readonly property string path: Config.hyprPath("hypr", "spaces.lua")
+    readonly property string bindsPath: Config.hyprPath("hypr", "binds.lua")
 
     property var list: []
     property string editing: ""
