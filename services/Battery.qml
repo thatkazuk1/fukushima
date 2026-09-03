@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.UPower
 
 /**
@@ -9,6 +10,12 @@ import Quickshell.Services.UPower
  * cluster and 蓄 surface stay hidden). Exposes percentage, charge state, a
  * signed draw/charge wattage, capacity and optional health, plus a formatted
  * time-to-empty/full string. `low` flags a discharging battery at or below 20%.
+ *
+ * Wear / degradation (`design`, `wearPct`, `cycleCount`) is read from sysfs —
+ * UPower over Quickshell exposes the current full capacity but not the design
+ * capacity or the cycle count. Health is then `full / design`
+ * (https://alchemmist.xyz/articles/battery-degradation/), preferring the sysfs
+ * figures and falling back to UPower's own.
  */
 Singleton {
     id: root
@@ -31,6 +38,61 @@ Singleton {
 
     readonly property bool healthSupported: dev ? dev.healthSupported : false
     readonly property int health: dev ? Math.round(dev.healthPercentage) : 0
+    readonly property string model: dev ? (dev.model || "") : ""
+
+    // --- wear / degradation (sysfs) ---
+    property real designWh: 0
+    property real fullWh: 0
+    property int cycleCount: -1
+
+    readonly property bool wearSupported: designWh > 0 && fullWh > 0
+    /** Percent of the original design capacity that has been lost. */
+    readonly property real wearPct: wearSupported
+        ? Math.max(0, Math.min(100, (1 - fullWh / designWh) * 100)) : 0
+    /** full / design as a percent — the battery's remaining capacity health. */
+    readonly property int healthPct: wearSupported ? Math.round(100 * fullWh / designWh)
+        : (healthSupported ? health : 0)
+
+    onChargingChanged: wearProc.running = true
+
+    Process {
+        id: wearProc
+        running: root.present
+        command: ["sh", "-c",
+            "for b in /sys/class/power_supply/BAT*/; do [ -d \"$b\" ] || continue; "
+            + "if [ -r \"${b}energy_full_design\" ]; then "
+            + "d=$(cat \"${b}energy_full_design\"); f=$(cat \"${b}energy_full\" 2>/dev/null || echo 0); "
+            + "awk -v d=\"$d\" -v f=\"$f\" 'BEGIN{printf \"DESIGN %.3f\\nFULL %.3f\\n\", d/1e6, f/1e6}'; "
+            + "elif [ -r \"${b}charge_full_design\" ]; then "
+            + "cd=$(cat \"${b}charge_full_design\"); cf=$(cat \"${b}charge_full\" 2>/dev/null || echo 0); "
+            + "v=$(cat \"${b}voltage_min_design\" 2>/dev/null || cat \"${b}voltage_now\" 2>/dev/null || echo 0); "
+            + "awk -v cd=\"$cd\" -v cf=\"$cf\" -v v=\"$v\" 'BEGIN{printf \"DESIGN %.3f\\nFULL %.3f\\n\", cd/1e6*v/1e6, cf/1e6*v/1e6}'; "
+            + "fi; "
+            + "[ -r \"${b}cycle_count\" ] && echo \"CYCLES $(cat \"${b}cycle_count\")\"; "
+            + "break; done"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var lines = this.text.split("\n");
+                for (var i = 0; i < lines.length; i++) {
+                    var p = lines[i].split(" ");
+                    if (p[0] === "DESIGN")
+                        root.designWh = parseFloat(p[1]) || 0;
+                    else if (p[0] === "FULL")
+                        root.fullWh = parseFloat(p[1]) || 0;
+                    else if (p[0] === "CYCLES")
+                        root.cycleCount = parseInt(p[1], 10);
+                }
+            }
+        }
+    }
+
+    /** Capacity and cycle count drift slowly; a five-minute re-read is plenty. */
+    Timer {
+        interval: 5 * 60 * 1000
+        repeat: true
+        running: root.present
+        onTriggered: wearProc.running = true
+    }
 
     readonly property bool hasTime: !dev ? false
         : (charging ? dev.timeToFull > 0 : (discharging ? dev.timeToEmpty > 0 : false))

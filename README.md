@@ -71,7 +71,7 @@ the pure-JS logic tests on every push.
 | --- | --- |
 | `quickshell` | shell runtime |
 | `hyprctl` | Hyprland IPC (workspaces, monitors, dispatch, reload) |
-| `upower` | battery status and charge reporting |
+| `upower` | battery status and charge reporting (design capacity + cycle count read from `/sys/class/power_supply`) |
 | `bluez` (`bluetoothctl`) | bluetooth surface |
 | `jq` | JSON parsing in the helper scripts |
 | `magick` (ImageMagick) | wallpaper thumbnails and palette |

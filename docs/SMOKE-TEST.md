@@ -113,9 +113,10 @@ Reachable via `just ipc page "" <name>` and from the expanded hover row.
       devices use Quickshell connect/disconnect; unpaired → pair-trust-connect
       with inline ember + transient failure line
 - [ ] **battery** (`ipc battery`) — percentage hero + time-to-empty/full subline;
-      charge meter; Rate/Health/Capacity stats (Health drops if UPower can't
-      report; time line drops with no estimate); charging warms the tones;
-      AC-full → "Plugged in". Absent on a desktop
+      charge meter; Rate line; then a **health block** — a muted capacity bar
+      (full charge vs design), "N.N of N.N Wh · N cycles", health % turns
+      vermillion under 80. Block hides if sysfs reports no design capacity.
+      Charging warms the tones; AC-full → "Plugged in". Absent on a desktop
 - [ ] **sysmon** (`ipc sysmon`) — CPU/GPU/memory flame dials (270° arcs, eased);
       centre value + unit + sub (temp / mem total); hairline strip: net
       throughput, disk fill, swap, VRAM; no dGPU → GPU dial + VRAM cell drop and

@@ -8,11 +8,14 @@ import "../../components"
 /**
  * 蓄 BATTERY surface: a typographic read-out for the laptop battery. The
  * percentage is the hero, set over a time-to-empty/full subline, with a thin
- * charge meter and an adaptive stat list (Rate / Health / Capacity) beneath a
- * hairline. Health drops when UPower can't report it and the time line drops
- * when no estimate exists; on AC-full the subline reads "Plugged in". Charging
- * warms the percentage, subline and meter to the flame tones. Exposes
- * `implicitHeight` from its content and docks Ame as a seam at the charge head.
+ * charge meter and a Rate line. Below a hairline sits a health block — a muted
+ * capacity bar (current full charge against the design capacity), the two Wh
+ * figures and the charge-cycle count — so the degradation is visible at a
+ * glance. The block hides on a battery that reports no design capacity.
+ *
+ * On AC-full the subline reads "Plugged in". Charging warms the percentage,
+ * subline and meter to the flame tones. Exposes `implicitHeight` from its
+ * content and docks Ame as a seam at the charge head.
  */
 PillSurface {
     id: root
@@ -189,16 +192,77 @@ PillSurface {
             }
 
             StatRow {
-                visible: Battery.healthSupported
-                label: "Health"
-                value: Battery.health + "%"
-                warm: true
-            }
-
-            StatRow {
-                visible: Battery.capacityWh >= 1
+                visible: !Battery.wearSupported && Battery.capacityWh >= 1
                 label: "Capacity"
                 value: Battery.capacityWh.toFixed(1) + " Wh"
+            }
+        }
+
+        // --- health / degradation --------------------------------------
+        Column {
+            width: parent.width
+            visible: Battery.wearSupported
+            topPadding: 14 * root.s
+            spacing: 8 * root.s
+
+            Rectangle {
+                width: parent.width
+                height: 1
+                color: Theme.hair
+            }
+
+            Item {
+                width: parent.width
+                height: healthVal.implicitHeight
+
+                Text {
+                    anchors.left: parent.left
+                    anchors.baseline: healthVal.baseline
+                    text: "HEALTH"
+                    color: Theme.faint
+                    font.family: Theme.font
+                    font.pixelSize: 10 * root.s
+                    font.weight: Font.Medium
+                    font.capitalization: Font.AllUppercase
+                    font.letterSpacing: 0.8 * root.s
+                }
+                Text {
+                    id: healthVal
+                    anchors.right: parent.right
+                    text: Battery.healthPct + "%"
+                    color: Battery.healthPct < 80 ? Theme.vermLit : Theme.cream
+                    font.family: Theme.font
+                    font.pixelSize: 12.5 * root.s
+                    font.weight: Font.DemiBold
+                    font.features: { "tnum": 1 }
+                }
+            }
+
+            Rectangle {
+                width: parent.width
+                height: 3 * root.s
+                radius: 1.5 * root.s
+                color: Theme.threadBg
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width * Math.max(0, Math.min(1, Battery.healthPct / 100))
+                    radius: parent.radius
+                    color: Battery.healthPct < 80 ? Theme.vermDim : Theme.dim
+                }
+            }
+
+            Text {
+                width: parent.width
+                text: Battery.fullWh.toFixed(1) + " of " + Battery.designWh.toFixed(1) + " Wh"
+                    + (Battery.cycleCount >= 0 ? "  ·  " + Battery.cycleCount + " cycle" + (Battery.cycleCount === 1 ? "" : "s") : "")
+                color: Theme.faint
+                font.family: Theme.font
+                font.pixelSize: 9.5 * root.s
+                font.weight: Font.Medium
+                font.features: { "tnum": 1 }
             }
         }
     }
