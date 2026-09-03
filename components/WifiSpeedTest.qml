@@ -6,8 +6,10 @@ import "../config"
 
 /**
  * Inline internet speed test for the wifi surface (relocated from the system
- * monitor). Ping → 5s download → 5s upload against speed.cloudflare.com, no
- * privilege. Covers the panel while `open`; `requestClose` dismisses.
+ * monitor). scripts/net-speedtest.sh streams `ping` / `down` / `up` lines as
+ * each time-boxed phase against speed.cloudflare.com finishes; a curl
+ * `--max-time` cutoff is the normal end of a phase, not a failure. Covers the
+ * panel while `open`; `requestClose` dismisses.
  */
 Item {
     id: root
@@ -28,17 +30,6 @@ Item {
         return mbps >= 1000 ? (mbps / 1000).toFixed(1) + " Gbps" : mbps.toFixed(1) + " Mbps";
     }
 
-    function fail(msg) {
-        root.error = msg;
-        root.running = false;
-        root.phase = "";
-        root.done = false;
-        pingProc.running = false;
-        dlProc.running = false;
-        ulProc.running = false;
-        timeout.stop();
-    }
-
     function start() {
         if (root.running)
             return;
@@ -49,17 +40,13 @@ Item {
         root.ping = 0;
         root.down = 0;
         root.up = 0;
-        timeout.start();
-        pingProc.running = true;
+        proc.running = true;
     }
 
     function stop() {
         root.running = false;
         root.phase = "";
-        timeout.stop();
-        pingProc.running = false;
-        dlProc.running = false;
-        ulProc.running = false;
+        proc.running = false;
     }
 
     onOpenChanged: if (!open) stop()
@@ -217,75 +204,37 @@ Item {
     }
 
     Process {
-        id: pingProc
-        command: ["sh", "-c",
-            "out=$(curl -s -m 6 -o /dev/null -w '%{time_total}' https://speed.cloudflare.com/meta 2>/dev/null); "
-            + "rc=$?; [ \"$rc\" -ne 0 ] && { echo __FAIL__; exit 0; }; printf '%s' \"$out\""]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var txt = this.text.trim();
-                if (txt === "__FAIL__" || txt.length === 0) {
-                    root.fail("No internet connection");
+        id: proc
+        command: ["bash", Config.hyprPath("scripts", "net-speedtest.sh")]
+        stdout: SplitParser {
+            onRead: (line) => {
+                var tab = line.indexOf("\t");
+                if (tab < 1)
                     return;
+                var k = line.slice(0, tab);
+                var v = line.slice(tab + 1).trim();
+                if (k === "ping") {
+                    root.ping = parseFloat(v) || 0;
+                    root.phase = "download";
+                } else if (k === "down") {
+                    root.down = parseFloat(v) || 0;
+                    root.phase = "upload";
+                } else if (k === "up") {
+                    root.up = parseFloat(v) || 0;
+                    root.phase = "done";
+                } else if (k === "fail") {
+                    root.error = v === "ping" ? "No internet connection"
+                        : "Connection lost during " + v;
+                    root.running = false;
+                    proc.running = false;
                 }
-                root.ping = Math.round((parseFloat(txt) || 0) * 1000);
-                root.phase = "download";
-                dlProc.running = true;
             }
         }
-    }
-
-    Process {
-        id: dlProc
-        command: ["sh", "-c",
-            "bytes=0; t0=$(date +%s%N); rc=0; "
-            + "while [ $(( ($(date +%s%N) - t0) / 1000000000 )) -lt 5 ]; do "
-            + "b=$(curl -s -m 6 -o /dev/null -w '%{size_download}' 'https://speed.cloudflare.com/__down?bytes=25000000' 2>/dev/null); "
-            + "r=$?; [ \"$r\" -ne 0 ] && { rc=1; break; }; bytes=$((bytes + ${b:-0})); done; "
-            + "[ \"$rc\" -ne 0 ] && { echo __FAIL__; exit 0; }; "
-            + "awk -v b=\"$bytes\" 'BEGIN { printf \"%.1f\", b / 5 / 125000 }'"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var txt = this.text.trim();
-                if (txt === "__FAIL__" || txt.length === 0) {
-                    root.fail("Connection lost during download");
-                    return;
-                }
-                root.down = Math.round((parseFloat(txt) || 0) * 10) / 10;
-                root.phase = "upload";
-                ulProc.running = true;
-            }
-        }
-    }
-
-    Process {
-        id: ulProc
-        command: ["sh", "-c",
-            "bytes=0; t0=$(date +%s%N); rc=0; "
-            + "while [ $(( ($(date +%s%N) - t0) / 1000000000 )) -lt 5 ]; do "
-            + "b=$(head -c 25000000 /dev/zero | tr '\\0' 'x' | curl -s -m 6 -o /dev/null -w '%{size_upload}' -X POST --data-binary @- 'https://speed.cloudflare.com/__up' 2>/dev/null); "
-            + "r=$?; [ \"$r\" -ne 0 ] && { rc=1; break; }; bytes=$((bytes + ${b:-0})); done; "
-            + "[ \"$rc\" -ne 0 ] && { echo __FAIL__; exit 0; }; "
-            + "awk -v b=\"$bytes\" 'BEGIN { printf \"%.1f\", b / 5 / 125000 }'"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var txt = this.text.trim();
-                if (txt === "__FAIL__" || txt.length === 0) {
-                    root.fail("Connection lost during upload");
-                    return;
-                }
-                root.up = Math.round((parseFloat(txt) || 0) * 10) / 10;
-                root.phase = "done";
-                root.running = false;
+        onExited: {
+            root.running = false;
+            root.phase = root.error.length ? "" : "done";
+            if (!root.error.length && root.up > 0)
                 root.done = true;
-                timeout.stop();
-            }
         }
-    }
-
-    Timer {
-        id: timeout
-        interval: 45000
-        onTriggered: root.fail("Speed test timed out")
     }
 }

@@ -564,6 +564,14 @@ PillSurface {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: { root.speedOpen = false; root.qrOpen = !root.qrOpen; }
                 }
+                Tooltip {
+                    s: root.s
+                    placement: "below"
+                    align: "right"
+                    title: "Share network"
+                    desc: "Show a QR code to join"
+                    show: qrArea.containsMouse
+                }
             }
 
             GlyphIcon {
@@ -581,6 +589,14 @@ PillSurface {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: { root.qrOpen = false; root.speedOpen = !root.speedOpen; }
+                }
+                Tooltip {
+                    s: root.s
+                    placement: "below"
+                    align: "right"
+                    title: "Speed test"
+                    desc: "Measure this connection"
+                    show: speedArea.containsMouse
                 }
             }
 
@@ -615,15 +631,32 @@ PillSurface {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.scanning ? root.stopScan() : root.startScan()
                 }
+                Tooltip {
+                    s: root.s
+                    placement: "below"
+                    align: "right"
+                    title: root.scanning ? "Scanning…" : "Rescan networks"
+                    show: reloadArea.containsMouse
+                }
             }
 
             LinkToggle {
+                id: wifiToggle
                 s: root.s
                 anchors.verticalCenter: parent.verticalCenter
                 on: root.wifiOn
                 onToggled: {
                     if (typeof Networking !== "undefined" && Networking)
                         Networking.wifiEnabled = !Networking.wifiEnabled;
+                }
+
+                HoverHandler { id: wifiToggleHover }
+                Tooltip {
+                    s: root.s
+                    placement: "below"
+                    align: "right"
+                    title: root.wifiOn ? "Wi-Fi on" : "Wi-Fi off"
+                    show: wifiToggleHover.hovered
                 }
             }
         }
@@ -738,6 +771,18 @@ PillSurface {
                     onToggled: NetInfo.setBand(NetInfo.bandSelected === "auto"
                         ? (NetInfo.band.length ? NetInfo.band : "5")
                         : "auto")
+
+                    HoverHandler { id: autoHover }
+                    Tooltip {
+                        s: root.s
+                        placement: "below"
+                        align: "right"
+                        title: NetInfo.bandSelected === "auto" ? "Automatic band" : "Band pinned"
+                        desc: NetInfo.bandSelected === "auto"
+                            ? "Let Wi-Fi pick 2.4 / 5 / 6 GHz"
+                            : "Locked to " + NetInfo.bandSelected + " GHz"
+                        show: autoHover.hovered
+                    }
                 }
             }
         }
