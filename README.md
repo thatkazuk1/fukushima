@@ -1,44 +1,70 @@
 # 浮島 Ukishima
 
-> A dynamic-island Quickshell shell for Hyprland.
+A dynamic-island [Quickshell](https://quickshell.outfoxxed.me) shell for Hyprland — one morphing pill per monitor, every surface grown from the pill itself.
 
-Ukishima (浮島, *"floating island"*) is a widget layer for Hyprland built around a single morphing pill at the top of every monitor. Collapsed it is a thin warm-vermillion strip; hover it and it expands in place into a control centre — workspace dots, clock, media, system readouts — and every module grows its own surface out of the pill itself. Nothing ever pops up as a separate panel.
+## Table of Contents
 
-The project is fully self-contained. It makes no changes to existing Hyprland config files.
+- [About the Project](#about-the-project)
+- [Features](#features)
+- [Preview](#preview)
+- [Project Status](#project-status)
+- [Getting Started](#getting-started)
+  - [Dependencies](#dependencies)
+  - [Technology Stack](#technology-stack)
+  - [Third-party Services](#third-party-services)
+- [Installation & Development](#installation--development)
+  - [Setting Up](#setting-up)
+  - [Keybinds](#keybinds)
+  - [Development](#development)
+  - [Testing](#testing)
+  - [State & Cache](#state--cache)
+  - [Uninstalling](#uninstalling)
+- [How to Get Help](#how-to-get-help)
+- [Contributing](#contributing)
+- [Acknowledgements](#acknowledgements)
+- [Authors](#authors)
+  - [Repo Activity](#repo-activity)
 
-## Preview
+## About the Project
 
-<p align="center">
-<a href="https://youtu.be/Xkld6B5Pke0">
-  <img src="https://img.youtube.com/vi/Xkld6B5Pke0/maxresdefault.jpg" width="80%" alt="Ukishima demo on YouTube">
-</a>
-</p>
+Ukishima (浮島, *"floating island"*) is a widget layer for Hyprland built around a single morphing pill at the top of every monitor. Collapsed, it is a thin warm-vermillion strip; hover it and it expands in place into a control centre — workspace dots, clock, media, system readouts — and every module grows its own surface out of the pill itself. Nothing ever pops up as a separate panel.
 
-See the [full preview gallery](preview/README.md) for all screenshots.
+The project is fully self-contained. It makes no changes to existing Hyprland config files; the auto-launch line and the keybinds are the only things you add yourself.
 
-## Credits
-
-Ukishima is built on top of [**Ricelin**](https://github.com/Gakuseei/Ricelin) by [**Gakuseei**](https://github.com/Gakuseei). The pill concept, the morphing-surface architecture and most of the original shell codebase come from there; this project extends, reworks and rebrands it. All credit for the base code goes to the original author.
+This is a fork. See [Acknowledgements](#acknowledgements) for the lineage.
 
 ## Features
 
-- **Dynamic island** — one morphing pill per monitor, expanding in place with a bead cursor and smooth morph animations.
+- **Dynamic island** — one morphing pill per monitor, expanding in place with a bead cursor and smooth morph animations. Four collapsed faces (minimal / classic / system / strip).
 - **Surfaces** grown from the pill: launcher, weather, calendar, media, mixer, wallpaper strip + online search, screen recorder, clipboard history, wifi, bluetooth, battery, power menu, system monitor (with a speed test), notification centre, minimized-window stash, OSD, toasts, and a settings hub (appearance → display, theme, font, interface, update).
-- **Wallpaper system** — `awww` backend with a shuffled bag, per-monitor assignment, animated transitions, live wallpapers (`mpvpaper`), a per-wallpaper fit control (Cover / Contain / Stretch / Center) that rescales the screen in place, and a live palette that retints the whole UI plus the terminal on every change; an online **wallhaven** browse/search with pagination, Hot / Latest / Top / Random / Top Liked sorting, and memory-only thumbnails (nothing cached to disk).
+- **Wallpaper system** — `awww` backend with a shuffled bag, per-monitor assignment, animated transitions, live wallpapers (`mpvpaper`), a per-wallpaper fit control (Cover / Contain / Stretch / Center) that rescales the screen in place, and a live palette that retints the whole UI plus the terminal on every change; an online [Wallhaven](https://wallhaven.cc) browse/search with pagination, Hot / Latest / Top / Random / Top Liked sorting, and memory-only thumbnails (nothing cached to disk).
 - **Screen recorder** — `gpu-screen-recorder` with slurp window/region picking, countdown, quality presets, audio, and a recent-clips filmstrip.
 - **Weather** — Open-Meteo current conditions, hourly and five-day forecast in a dedicated surface, with an editable location (falls back to IP auto-detection).
 - **Extras** — night light (hyprsunset), clipboard manager (cliphist), music visualiser (cava), game mode, quick-record keybind, keep-awake, and an in-app updater that pulls the latest release from GitHub.
 
-## Requirements
+## Preview
 
-- Linux + Wayland
-- **Hyprland** (developed on 0.56.1, works across recent 0.4x/0.5x)
-- **Quickshell** 0.3.0+ built with the Hyprland, Wayland and Io QML modules
-- Qt6 / QtQuick (ships with Quickshell)
+See the [preview gallery](preview/README.md) for screenshots. These predate this
+fork and will be refreshed once it diverges visually.
 
-## Dependencies
+## Project Status
 
-### Core
+![status](https://img.shields.io/badge/status-active-brightgreen)
+![quickshell](https://img.shields.io/badge/quickshell-0.3.0%2B-blue)
+![hyprland](https://img.shields.io/badge/hyprland-0.4x%20%E2%80%93%200.5x-blue)
+![license](https://img.shields.io/badge/license-MIT-lightgrey)
+[![CI](https://github.com/thatkazuk1/ukishima/actions/workflows/ci.yml/badge.svg)](https://github.com/thatkazuk1/ukishima/actions/workflows/ci.yml)
+
+Actively developed. The current focus is a structured engineering pass over the
+forked codebase — a proper dev environment (done), a behaviour-preserving
+refactor of the surface architecture, then new features. CI runs `qmllint` and
+the pure-JS logic tests on every push.
+
+## Getting Started
+
+### Dependencies
+
+#### Core
 
 | Tool | Used for |
 | --- | --- |
@@ -57,7 +83,7 @@ Ukishima is built on top of [**Ricelin**](https://github.com/Gakuseei/Ricelin) b
 | `slurp` | window/region picker for screen recording |
 | `hyprsunset` | night light |
 
-### Optional, for full functionality
+#### Optional, for full functionality
 
 | Package | Adds |
 | --- | --- |
@@ -70,75 +96,131 @@ Ukishima is built on top of [**Ricelin**](https://github.com/Gakuseei/Ricelin) b
 | `fastfetch` | recoloured system readout (needs `~/.config/fastfetch/config.jsonc.in`) |
 | `hypridle` | idle / DPMS lock integration alongside the built-in keep-awake |
 
-## Install
+### Technology Stack
+
+- **[Quickshell](https://quickshell.outfoxxed.me) 0.3.0+** — the shell runtime; must be built with the Hyprland, Wayland and Io QML modules. Ships Qt 6 / QtQuick.
+- **[Hyprland](https://hypr.land)** — the Wayland compositor (developed on 0.56.1, works across recent 0.4x/0.5x). Talked to over `hyprctl` IPC.
+- **QML** — the entire shell; no compiled component and no build step.
+- **Bash** — the helper scripts under `scripts/` (wallpaper application, thumbnails, game mode), invoked via Quickshell's `Process`.
+- **Python 3** — `scripts/wallcolors.py`, the palette / manual-hue generator.
+- **Node** — runs the pure-JS logic tests under `lib/` (not needed at runtime).
+
+### Third-party Services
+
+- **[Open-Meteo](https://open-meteo.com)** — weather forecast (no API key; IP geolocation fallback via their companion service).
+- **[Wallhaven](https://wallhaven.cc)** — the online wallpaper browse/search. Thumbnails are streamed from Wallhaven's CDN straight to QML and never touch disk.
+- **GitHub** — the in-app updater pulls the latest commit of this repo.
+
+## Installation & Development
+
+### Setting Up
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/amanhex/Ukishima/master/remote-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/thatkazuk1/ukishima/master/remote-install.sh | bash
 ```
 
-This clones the project to `~/.local/share/quickshell/ukishima`, checks dependencies, and prints the keybinds and auto-launch line to add to your Hyprland config. If already installed, it pulls the latest changes instead.
+This clones the project to `~/.local/share/quickshell/ukishima`, checks dependencies, and prints the auto-launch line and keybinds to add to your Hyprland config. If already installed, it pulls the latest changes instead.
 
-**Already installed?** Pull updates from the **Update** sub-surface inside the pill's settings (Appearance → Update), run the same command above, or pull manually:
+To auto-launch, add to your Hyprland config:
 
-```bash
-cd ~/.local/share/quickshell/ukishima && git pull
+```conf
+# hyprlang (.conf)
+exec-once = quickshell --config ~/.local/share/quickshell/ukishima
 ```
 
-## Uninstall
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/amanhex/Ukishima/master/uninstall.sh | bash
+```lua
+-- Lua
+hl.exec_cmd("quickshell --config ~/.local/share/quickshell/ukishima")
 ```
 
-Removes the program files, all state (`~/.local/state/ukishima*`) and all caches (`~/.cache/ukishima*`, `~/.cache/cliphist-thumbs`, `~/.cache/pill`), and stops any running instance.
-
-You still need to remove the `exec-once` auto-launch line and the SUPER keybinds you added to your Hyprland config, and uninstall any dependencies you installed only for Ukishima (see [Dependencies](#dependencies)).
-
-## Launch
+Or launch it manually:
 
 ```bash
 quickshell --config "$HOME/.local/share/quickshell/ukishima"
 ```
 
-To auto-launch, add to your Hyprland config:
+**Already installed?** Pull updates from the **Update** sub-surface inside the pill's settings (Appearance → Update), rerun the install command, or `git pull` in the install directory.
 
-**hyprlang (.conf)**
+### Keybinds
+
+Every surface and action is exposed over Quickshell IPC (target `ukishima`). The `""` argument is the monitor — empty means "focused monitor". Bind whichever you want in your Hyprland config:
 
 ```conf
-exec-once = quickshell --config ~/.local/share/quickshell/ukishima
-```
-
-**Lua**
-
-```lua
-hl.exec_cmd("quickshell --config ~/.local/share/quickshell/ukishima")
-```
-
-## Keybinds (IPC)
-
-Every surface and action is exposed over quickshell IPC (target `ukishima`). The `""` argument is the monitor — empty means "focused monitor". Bind them in your Hyprland config.
-
-**hyprlang (.conf)**
-
-```
+# hyprlang (.conf)
 bind = SUPER, SHIFT+W, exec, qs -p ~/.local/share/quickshell/ukishima ipc call ukishima wallpaper ""
 bind = SUPER, SHIFT+V, exec, qs -p ~/.local/share/quickshell/ukishima ipc call ukishima clipboard ""
 bind = SUPER, slash,   exec, qs -p ~/.local/share/quickshell/ukishima ipc call ukishima launcher ""
 ```
 
-**Lua**
-
 ```lua
+-- Lua
 hl.bind(var_mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call ukishima wallpaper \"\""))
 hl.bind(var_mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call ukishima clipboard \"\""))
 hl.bind(var_mainMod .. " + slash",     hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call ukishima launcher \"\""))
 ```
 
-If you cloned the repo to `~/.config/quickshell/ukishima` instead, replace `qs -p ~/.local/share/quickshell/ukishima` with `qs -c ukishima`.
+If you cloned to `~/.config/quickshell/ukishima` instead, replace `qs -p ~/.local/share/quickshell/ukishima` with `qs -c ukishima`.
 
 Available IPC handlers: `launcher`, `wallpaper`, `clipboard`, `mixer`, `calendar`, `media`, `power`, `link`, `battery`, `sysmon`/`system`, `recorder`/`screenrec`/`record`, `quickRecord`, `gameMode`, `peek`, `hide`, `page`, `minimizeWindow`, `restoreWindow`. The `page` handler takes the monitor first (empty = focused) and the surface name second — `qs -c ukishima ipc call ukishima page "" wifi`.
 
-## State & cache
+### Development
 
-- state: `$XDG_STATE_HOME/ukishima` (default `~/.local/state/ukishima`) — flags, events, gamemode snapshot; wallpaper selection lives in sibling files `~/.local/state/ukishima-wallpaper*`
-- cache: `$XDG_CACHE_HOME/ukishima` (default `~/.cache/ukishima`) — palette JSON, rec thumbs; wallpaper previews under `ukishima-wp-thumbs/`, clipboard previews under `cliphist-thumbs/`, weather location under `pill/`
+The shell is interpreted QML — edit a file, and Quickshell hot-reloads it. Full setup (QML tooling, LSP, the isolated dev instance) is in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). In short:
+
+```bash
+sudo apt install just              # task runner
+just doctor                        # confirm the toolchain
+just dev                           # run this checkout as an isolated instance
+```
+
+`just dev` runs alongside a normally-installed Ukishima without touching its state.
+
+### Testing
+
+```bash
+just check     # qmllint + the lib/ logic tests (this is what CI runs)
+```
+
+There is no automated UI test (it would need a live compositor). After a behaviour-preserving change, walk [`docs/SMOKE-TEST.md`](docs/SMOKE-TEST.md) — a manual click-through of every surface and pill state.
+
+### State & Cache
+
+- **state:** `$XDG_STATE_HOME/ukishima` (default `~/.local/state/ukishima`) — flags, events, gamemode snapshot; the wallpaper selection lives in sibling `~/.local/state/ukishima-wallpaper*` files.
+- **cache:** `$XDG_CACHE_HOME/ukishima` (default `~/.cache/ukishima`) — palette JSON and record thumbnails; wallpaper previews under `ukishima-wp-thumbs/`, clipboard previews under `cliphist-thumbs/`, weather location under `pill/`.
+
+### Uninstalling
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/thatkazuk1/ukishima/master/uninstall.sh | bash
+```
+
+Removes the program files, all state (`~/.local/state/ukishima*`) and all caches (`~/.cache/ukishima*`, `~/.cache/cliphist-thumbs`, `~/.cache/pill`), and stops any running instance. You still remove the `exec-once` line and the keybinds from your Hyprland config yourself, and uninstall any dependencies you added only for Ukishima.
+
+## How to Get Help
+
+This is a personal project with no SLA. [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) explains the codebase; the header comment on each surface explains what it does and why. For a genuine bug in the public material, the issue tracker is checked periodically.
+
+## Contributing
+
+Not actively seeking contributions while the refactor is in flight — the architecture is moving under your feet. Bug reports for real breakage are welcome. Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
+## Acknowledgements
+
+Ukishima stands on two projects it borrows heavily from:
+
+- **[Ricelin](https://github.com/Gakuseei/Ricelin)** by **[Gakuseei](https://github.com/Gakuseei)** — the origin of the pill concept, the morphing-surface architecture and most of the original shell code.
+- **[Ukishima](https://github.com/amanhex/Ukishima)** by **[amanhex](https://github.com/amanhex)** — the fork of Ricelin that extended and rebranded it into the pill shell this repo is based on.
+
+This repo is a fork of amanhex's Ukishima and continues that work. All credit for the base code goes to the original authors; the `MIT` licence and their copyright are retained in [`LICENSE`](LICENSE).
+
+## Authors
+
+**Desmond Edem** ([@thatkazuk1](https://github.com/thatkazuk1)) — this fork.
+
+Base code by **Gakuseei** (Ricelin) and **amanhex** (Ukishima); see [Acknowledgements](#acknowledgements).
+
+### Repo Activity
+
+TBA.
+
+**[Back to top](#table-of-contents)**
