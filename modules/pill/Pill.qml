@@ -278,7 +278,7 @@ Item {
     readonly property real mediaW: (Players.pickable.length > 1 ? 460 : 390) * s
     readonly property real mediaH: 150 * s
     readonly property real batteryW: 316 * s
-    readonly property real wifiW: 272 * s
+    readonly property real wifiW: 376 * s
     readonly property real btW: 286 * s
     readonly property real recorderW: 384 * s
     readonly property real sysmonW: 392 * s

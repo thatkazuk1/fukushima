@@ -19,4 +19,6 @@ Tray Tray.qml
 VFader VFader.qml
 WheelScroller WheelScroller.qml
 WifiGlyph WifiGlyph.qml
+WifiQr WifiQr.qml
+WifiSpeedTest WifiSpeedTest.qml
 Workspaces Workspaces.qml

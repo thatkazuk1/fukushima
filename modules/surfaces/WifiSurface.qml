@@ -10,12 +10,14 @@ import "../../services"
 import "../../components"
 
 /**
- * 波 WIFI surface: kanji header, wifi enable toggle and the live network list
- * sorted by signal strength. Security and known-profile ground truth come from
- * nmcli; clicking a secured unknown network expands an inline password row that
- * connects through `nmcli dev wifi connect`. Standalone root surface, so Escape
- * and the backdrop dismiss it like every other surface; the pill body provides
- * the material, this item draws no background.
+ * 波 WIFI surface. Mirrors omarchy Quattro's network panel in Ukishima's
+ * language: a live vitals grid (ping / packet loss, receive + send rates,
+ * session totals, IP / gateway) fed by the Network service, a Wi-Fi band
+ * selector, QR sharing and an inline speed test, over the existing signal-sorted
+ * network list with its connect / disconnect / forget / password flow.
+ *
+ * Standalone root surface — Escape and the backdrop dismiss it; the pill body
+ * provides the material, this item draws no background.
  */
 PillSurface {
     id: root
@@ -247,6 +249,8 @@ PillSurface {
             connSpinTimer.stop();
             connectFailed = false;
             hidePassword();
+            qrOpen = false;
+            speedOpen = false;
         }
     }
 
@@ -436,6 +440,62 @@ PillSurface {
         values: root.netsSorted
     }
 
+
+    // --- inline pieces -----------------------------------------------------
+
+    component StatCell: Item {
+        property real s: 1
+        property string label: ""
+        property string value: ""
+        property color valueColor: Theme.cream
+        height: 20 * s
+
+        Text {
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            text: parent.label
+            color: Theme.faint
+            font.family: Theme.font
+            font.pixelSize: 9.5 * parent.s
+            font.weight: Font.Medium
+        }
+        Text {
+            anchors.right: parent.right
+            anchors.left: parent.left
+            anchors.leftMargin: 62 * parent.s
+            anchors.verticalCenter: parent.verticalCenter
+            horizontalAlignment: Text.AlignRight
+            text: parent.value
+            color: parent.valueColor
+            font.family: Theme.font
+            font.pixelSize: 11 * parent.s
+            font.weight: Font.DemiBold
+            font.features: ({ "tnum": 1 })
+            elide: Text.ElideMiddle
+        }
+    }
+
+    Binding {
+        target: NetInfo
+        property: "open"
+        value: root.active
+    }
+
+    Connections {
+        target: NetInfo
+        function onBandError(message) {
+            root.bandFailMsg = message;
+            bandFailClear.restart();
+        }
+    }
+    property string bandFailMsg: ""
+    Timer { id: bandFailClear; interval: 4000; onTriggered: root.bandFailMsg = "" }
+
+    readonly property bool connected: NetInfo.iface.length > 0
+    readonly property bool isWifi: NetInfo.type === "wifi"
+
+    // --- header ----------------------------------------------------------
+
     Item {
         id: header
         anchors.top: parent.top
@@ -467,9 +527,9 @@ PillSurface {
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.6 * root.s
             }
-
             Text {
                 anchors.verticalCenter: parent.verticalCenter
+                width: 128 * root.s
                 text: "· " + root.statusText
                 color: root.activeNet ? Theme.vermLit : Theme.faint
                 font.family: Theme.font
@@ -482,7 +542,43 @@ PillSurface {
         Row {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 12 * root.s
+            spacing: 13 * root.s
+
+            GlyphIcon {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: root.connected && root.isWifi
+                width: 15 * root.s
+                height: 15 * root.s
+                name: "qr"
+                color: root.qrOpen ? Theme.vermLit : (qrArea.containsMouse ? Theme.cream : Theme.iconDim)
+                stroke: 1.7
+                MouseArea {
+                    id: qrArea
+                    anchors.fill: parent
+                    anchors.margins: -6 * root.s
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: { root.speedOpen = false; root.qrOpen = !root.qrOpen; }
+                }
+            }
+
+            GlyphIcon {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: root.connected
+                width: 16 * root.s
+                height: 16 * root.s
+                name: "gauge"
+                color: root.speedOpen ? Theme.vermLit : (speedArea.containsMouse ? Theme.cream : Theme.iconDim)
+                stroke: 1.7
+                MouseArea {
+                    id: speedArea
+                    anchors.fill: parent
+                    anchors.margins: -6 * root.s
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: { root.qrOpen = false; root.speedOpen = !root.speedOpen; }
+                }
+            }
 
             Item {
                 anchors.verticalCenter: parent.verticalCenter
@@ -507,7 +603,6 @@ PillSurface {
                         onRunningChanged: if (!running) reloadGlyph.rotation = 0
                     }
                 }
-
                 MouseArea {
                     id: reloadArea
                     anchors.fill: parent
@@ -531,7 +626,7 @@ PillSurface {
     }
 
     Rectangle {
-        id: divider
+        id: div1
         anchors.top: header.bottom
         anchors.topMargin: 9 * root.s
         anchors.left: parent.left
@@ -540,13 +635,152 @@ PillSurface {
         color: Theme.hair
     }
 
+    // --- vitals grid ----------------------------------------------------
+
+    Column {
+        id: statGrid
+        anchors.top: div1.bottom
+        anchors.topMargin: root.connected ? 9 * root.s : 0
+        anchors.left: parent.left
+        anchors.right: parent.right
+        spacing: 3 * root.s
+        readonly property real cell: (width - 18 * root.s) / 2
+        clip: true
+        height: root.connected ? implicitHeight : 0
+        opacity: root.connected ? 1 : 0
+        Behavior on height { NumberAnimation { duration: Motion.fast } }
+
+        Row {
+            spacing: 18 * root.s
+            StatCell { s: root.s; width: statGrid.cell; label: "Ping"; value: NetInfo.pingText }
+            StatCell { s: root.s; width: statGrid.cell; label: "Packet Loss"; value: NetInfo.packetLossText }
+        }
+        Row {
+            spacing: 18 * root.s
+            StatCell { s: root.s; width: statGrid.cell; label: "Receiving"; value: NetInfo.downRateText }
+            StatCell { s: root.s; width: statGrid.cell; label: "Sending"; value: NetInfo.upRateText }
+        }
+        Row {
+            spacing: 18 * root.s
+            StatCell { s: root.s; width: statGrid.cell; label: "Downloaded"; value: NetInfo.downTotalText }
+            StatCell { s: root.s; width: statGrid.cell; label: "Uploaded"; value: NetInfo.upTotalText }
+        }
+        Row {
+            spacing: 18 * root.s
+            StatCell { s: root.s; width: statGrid.cell; label: "IP Address"; value: NetInfo.ipAddr }
+            StatCell { s: root.s; width: statGrid.cell; label: "Gateway"; value: NetInfo.gateway }
+        }
+    }
+
+    Rectangle {
+        id: div2
+        anchors.top: statGrid.bottom
+        anchors.topMargin: root.connected ? 9 * root.s : 0
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: root.connected && root.isWifi ? 1 : 0
+        color: Theme.hair
+    }
+
+    // --- Wi-Fi band ---------------------------------------------------
+
+    Column {
+        id: bandSection
+        anchors.top: div2.bottom
+        anchors.topMargin: (root.connected && root.isWifi) ? 9 * root.s : 0
+        anchors.left: parent.left
+        anchors.right: parent.right
+        spacing: 6 * root.s
+        clip: true
+        height: (root.connected && root.isWifi) ? implicitHeight : 0
+        opacity: (root.connected && root.isWifi) ? 1 : 0
+        Behavior on height { NumberAnimation { duration: Motion.fast } }
+
+        Item {
+            width: parent.width
+            height: 16 * root.s
+
+            Text {
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                text: NetInfo.bandTitle
+                color: Theme.subtle
+                font.family: Theme.font
+                font.pixelSize: 9.5 * root.s
+                font.weight: Font.DemiBold
+                font.capitalization: Font.AllUppercase
+                font.letterSpacing: 1.4 * root.s
+            }
+
+            Row {
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 8 * root.s
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "AUTOMATIC"
+                    color: Theme.faint
+                    font.family: Theme.font
+                    font.pixelSize: 9 * root.s
+                    font.weight: Font.DemiBold
+                    font.capitalization: Font.AllUppercase
+                    font.letterSpacing: 1.2 * root.s
+                }
+                LinkToggle {
+                    s: root.s * 0.9
+                    anchors.verticalCenter: parent.verticalCenter
+                    on: NetInfo.bandSelected === "auto"
+                    onToggled: NetInfo.setBand(NetInfo.bandSelected === "auto"
+                        ? (NetInfo.band.length ? NetInfo.band : "5")
+                        : "auto")
+                }
+            }
+        }
+
+        SettingsSeg {
+            s: root.s
+            visible: NetInfo.bandSelected !== "auto"
+            options: [
+                { label: "2.4", value: "2.4" },
+                { label: "5", value: "5" },
+                { label: "6", value: "6" }
+            ].filter(function (o) { return NetInfo.bandAvailable.indexOf(o.value) >= 0 || o.value === NetInfo.band; })
+            value: NetInfo.bandSelected
+            onPicked: (v) => NetInfo.setBand(v)
+        }
+
+        Text {
+            visible: root.bandFailMsg.length > 0
+            width: parent.width
+            text: root.bandFailMsg
+            color: Theme.vermLit
+            font.family: Theme.font
+            font.pixelSize: 9 * root.s
+            elide: Text.ElideRight
+            maximumLineCount: 1
+        }
+    }
+
+    Rectangle {
+        id: div3
+        anchors.top: bandSection.bottom
+        anchors.topMargin: 9 * root.s
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 1
+        color: Theme.hair
+    }
+
+    // --- network list --------------------------------------------------
+
     Item {
         id: listFrame
-        anchors.top: divider.bottom
+        anchors.top: div3.bottom
         anchors.topMargin: 8 * root.s
         anchors.left: parent.left
         anchors.right: parent.right
-        height: root.wifiOn ? Math.min(Math.max(netCol.implicitHeight, 26 * root.s), 280 * root.s) : 0
+        height: root.wifiOn ? Math.min(Math.max(netCol.implicitHeight, 26 * root.s), 220 * root.s) : 0
 
         Text {
             anchors.centerIn: parent
@@ -957,4 +1191,22 @@ PillSurface {
         }
     }
 
+    // --- overlays (QR share, speed test) --------------------------------
+
+    property bool qrOpen: false
+    property bool speedOpen: false
+
+    WifiQr {
+        anchors.fill: parent
+        s: root.s
+        open: root.qrOpen
+        onRequestClose: root.qrOpen = false
+    }
+
+    WifiSpeedTest {
+        anchors.fill: parent
+        s: root.s
+        open: root.speedOpen
+        onRequestClose: root.speedOpen = false
+    }
 }
