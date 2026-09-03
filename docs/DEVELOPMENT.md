@@ -17,7 +17,7 @@ The stack, from the bottom up:
 | **QML** — the language | Declarative object tree with JavaScript expressions and functions. Familiar if you've seen JSON + JS. | every `.qml` file |
 | **Qt Quick** — the toolkit | The visual primitives: `Item`, `Rectangle`, `Text`, `MouseArea`, `Image`, plus animations, `Behavior`, `states`, `Loader`. | `components/`, `modules/` |
 | **Quickshell** — the shell runtime | Desktop-shell types Qt doesn't have: `PanelWindow` (a Wayland layer-shell surface), `Variants` (one delegate per screen), `IpcHandler`, `FileView` + `JsonAdapter` (config files), `Process` (subprocesses), and the `Quickshell.Hyprland` / `.Wayland` / `.Io` modules. | `shell.qml`, `services/` |
-| **Hyprland** | The Wayland compositor Ukishima decorates and talks to over `hyprctl` IPC. | `services/Spaces.qml`, `lib/monitors.js` |
+| **Hyprland** | The Wayland compositor Ukishima decorates and talks to over `hyprctl` IPC. | `services/Spaces.qml`, `components/Workspaces.qml` |
 
 Practical consequence: the dev loop is **edit a file → reload the shell → look at
 it**. You will never run `qmake` or `cmake`.
@@ -30,7 +30,7 @@ The layout follows the standard Quickshell config convention — see
 - **`shell.qml`** — the root (must be at the repo root). Creates, per monitor, a
   zero-height "reserve" window (claims an exclusive zone so tiled windows sit
   below the pill) and a full-screen transparent "overlay" window hosting the
-  pill. Also holds the IPC handlers and the battery-notification logic.
+  pill. Also holds the IPC handlers and the per-monitor input routing.
 - **`config/`** — settings singletons (`Config`, `Flags`) and design tokens
   (`Theme`, `Motion`). Declared `singleton` in `config/qmldir`.
 - **`services/`** — the 17 system-state providers (`Battery`, `Weather`,
@@ -165,10 +165,12 @@ the diff before committing.
 ## 5. Writing testable logic
 
 Anything that is pure data transformation — parsing `hyprctl` output, fuzzy
-matching, arithmetic — belongs in `lib/` as a plain `.mjs`/`.js` module with a
-sibling `*.test.mjs`, not inline in a `.qml` file. See `lib/monitors.js` and
-`lib/monitors.test.mjs` for the pattern (a tiny hand-rolled `eq`/`ok` harness,
-no dependencies). This keeps the logic exercisable in CI without a compositor.
+matching, arithmetic — belongs in `lib/` as a plain `.js` module (loaded into
+QML with `import "../../lib/x.js" as X` plus a trailing `module.exports` shim for
+Node) with a sibling `*.test.mjs` using a tiny hand-rolled `eq`/`ok` harness, no
+dependencies. This keeps the logic exercisable in CI without a compositor.
+`lib/calc.js` and `lib/fuzzy.js` (both used by the launcher) have no tests yet
+and are the obvious first candidates.
 
 ## 6. Conventions
 

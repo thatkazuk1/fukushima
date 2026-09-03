@@ -85,6 +85,7 @@ Rules:
   and want their interface designed rather than lifted.
 - **`config/Flags.qml`** is a single flat `JsonAdapter` with ~60 properties;
   it wants grouping (`record.*`, `night.*`, `wallpaper.*`, `ui.*`).
-- **`hypr/decoration.lua`**, `services/Spaces.qml`'s lua writer, and
-  `lib/monitors.js` assume a Lua-configured Hyprland. On a hyprlang setup the
-  first two are inert and `lib/monitors.js` is orphaned (only its test uses it).
+- **`hypr/decoration.lua`** and **`services/Spaces.qml`'s lua writer** assume a
+  Lua-configured Hyprland. On a hyprlang setup they are inert — nothing in the
+  QML tree reads what the Spaces writer produces. Deciding whether custom
+  special-workspaces is a feature to keep is pending.
