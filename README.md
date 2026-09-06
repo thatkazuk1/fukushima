@@ -31,7 +31,7 @@ Fukushima (福島) is a widget layer for Hyprland built around a single morphing
 
 The project is fully self-contained. It makes no changes to existing Hyprland config files; the auto-launch line and the keybinds are the only things you add yourself.
 
-This is a fork of amanhex's **Ukishima** (浮島, *"floating island"*) — the name keeps the *-shima*. See [Acknowledgements](#acknowledgements) for the full lineage. The IPC target, Wayland namespaces and state/cache paths are all `fukushima`; the **install directory** and the Quickshell **config name** below are still `ukishima` pending a rename.
+This is a fork of amanhex's **Ukishima** (浮島, *"floating island"*) — the name keeps the *-shima*. See [Acknowledgements](#acknowledgements) for the full lineage.
 
 ## Features
 
@@ -54,7 +54,7 @@ fork and will be refreshed once it diverges visually.
 ![quickshell](https://img.shields.io/badge/quickshell-0.3.0%2B-blue)
 ![hyprland](https://img.shields.io/badge/hyprland-0.4x%20%E2%80%93%200.5x-blue)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
-[![CI](https://github.com/thatkazuk1/ukishima/actions/workflows/ci.yml/badge.svg)](https://github.com/thatkazuk1/ukishima/actions/workflows/ci.yml)
+[![CI](https://github.com/thatkazuk1/fukushima/actions/workflows/ci.yml/badge.svg)](https://github.com/thatkazuk1/fukushima/actions/workflows/ci.yml)
 
 Actively developed. The current focus is a structured engineering pass over the
 forked codebase — a proper dev environment (done), a behaviour-preserving
@@ -119,27 +119,27 @@ the pure-JS logic tests on every push.
 ### Setting Up
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/thatkazuk1/ukishima/master/remote-install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/thatkazuk1/fukushima/master/remote-install.sh | bash
 ```
 
-This clones the project to `~/.local/share/quickshell/ukishima`, checks dependencies, and prints the auto-launch line and keybinds to add to your Hyprland config. If already installed, it pulls the latest changes instead.
+This clones the project to `~/.local/share/quickshell/fukushima`, checks dependencies, and prints the auto-launch line and keybinds to add to your Hyprland config. If already installed, it pulls the latest changes instead.
 
 To auto-launch, add to your Hyprland config:
 
 ```conf
 # hyprlang (.conf)
-exec-once = quickshell --config ~/.local/share/quickshell/ukishima
+exec-once = quickshell --config ~/.local/share/quickshell/fukushima
 ```
 
 ```lua
 -- Lua
-hl.exec_cmd("quickshell --config ~/.local/share/quickshell/ukishima")
+hl.exec_cmd("quickshell --config ~/.local/share/quickshell/fukushima")
 ```
 
 Or launch it manually:
 
 ```bash
-quickshell --config "$HOME/.local/share/quickshell/ukishima"
+quickshell --config "$HOME/.local/share/quickshell/fukushima"
 ```
 
 **Already installed?** Pull updates from the **Update** sub-surface inside the pill's settings (Appearance → Update), rerun the install command, or `git pull` in the install directory.
@@ -150,21 +150,21 @@ Every surface and action is exposed over Quickshell IPC (target `fukushima`). Th
 
 ```conf
 # hyprlang (.conf)
-bind = SUPER, SHIFT+W, exec, qs -p ~/.local/share/quickshell/ukishima ipc call fukushima wallpaper ""
-bind = SUPER, SHIFT+V, exec, qs -p ~/.local/share/quickshell/ukishima ipc call fukushima clipboard ""
-bind = SUPER, slash,   exec, qs -p ~/.local/share/quickshell/ukishima ipc call fukushima launcher ""
+bind = SUPER, SHIFT+W, exec, qs -p ~/.local/share/quickshell/fukushima ipc call fukushima wallpaper ""
+bind = SUPER, SHIFT+V, exec, qs -p ~/.local/share/quickshell/fukushima ipc call fukushima clipboard ""
+bind = SUPER, slash,   exec, qs -p ~/.local/share/quickshell/fukushima ipc call fukushima launcher ""
 ```
 
 ```lua
 -- Lua
-hl.bind(var_mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call fukushima wallpaper \"\""))
-hl.bind(var_mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call fukushima clipboard \"\""))
-hl.bind(var_mainMod .. " + slash",     hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call fukushima launcher \"\""))
+hl.bind(var_mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/fukushima ipc call fukushima wallpaper \"\""))
+hl.bind(var_mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/fukushima ipc call fukushima clipboard \"\""))
+hl.bind(var_mainMod .. " + slash",     hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/fukushima ipc call fukushima launcher \"\""))
 ```
 
-If you cloned to `~/.config/quickshell/ukishima` instead, replace `qs -p ~/.local/share/quickshell/ukishima` with `qs -c ukishima`.
+If you cloned to `~/.config/quickshell/fukushima` instead, replace `qs -p ~/.local/share/quickshell/fukushima` with `qs -c fukushima`.
 
-Available IPC handlers: `launcher`, `wallpaper`, `clipboard`, `mixer`, `calendar`, `media`, `power`, `link`, `battery`, `sysmon`/`system`, `recorder`/`screenrec`/`record`, `quickRecord`, `gameMode`, `peek`, `hide`, `page`, `minimizeWindow`, `restoreWindow`. The `page` handler takes the monitor first (empty = focused) and the surface name second — `qs -c ukishima ipc call fukushima page "" wifi`.
+Available IPC handlers: `launcher`, `wallpaper`, `clipboard`, `mixer`, `calendar`, `media`, `power`, `link`, `battery`, `sysmon`/`system`, `recorder`/`screenrec`/`record`, `quickRecord`, `gameMode`, `peek`, `hide`, `page`, `minimizeWindow`, `restoreWindow`. The `page` handler takes the monitor first (empty = focused) and the surface name second — `qs -c fukushima ipc call fukushima page "" wifi`.
 
 ### Development
 
@@ -194,7 +194,7 @@ There is no automated UI test (it would need a live compositor). After a behavio
 ### Uninstalling
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/thatkazuk1/ukishima/master/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/thatkazuk1/fukushima/master/uninstall.sh | bash
 ```
 
 Removes the program files, all state (`~/.local/state/fukushima*`) and all caches (`~/.cache/fukushima*`, `~/.cache/cliphist-thumbs`, `~/.cache/pill`), and stops any running instance. You still remove the `exec-once` line and the keybinds from your Hyprland config yourself, and uninstall any dependencies you added only for this.

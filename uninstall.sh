@@ -8,13 +8,13 @@ CONF="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 echo "Removing Fukushima..."
 
-# Stop a running instance (qs / quickshell started with the ukishima config).
-pkill -f "[q]s .*[Uu]kishima" 2>/dev/null || true
-pkill -f "[q]uickshell .*[Uu]kishima" 2>/dev/null || true
+# Stop a running instance (qs / quickshell started with the fukushima config).
+pkill -f "[q]s .*[Ff]ukushima" 2>/dev/null || true
+pkill -f "[q]uickshell .*[Ff]ukushima" 2>/dev/null || true
 
 # Program files (wherever you cloned it).
-rm -rf "$SHARE/quickshell/ukishima"
-rm -rf "$CONF/quickshell/ukishima"
+rm -rf "$SHARE/quickshell/fukushima"
+rm -rf "$CONF/quickshell/fukushima"
 
 # State: flags, events, gamemode snapshot, wallpaper selection.
 rm -rf "$STATE/fukushima"

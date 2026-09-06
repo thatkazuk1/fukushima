@@ -24,7 +24,7 @@
 #     and a missing hyprctl, jq (used only as a read fallback) or `timeout`
 #     degrades instead of dying.
 #   * extra keys can be layered in without editing the file via
-#     UKISHIMA_GAMEMODE_EXTRA (one `option=value` per line).
+#     FUKUSHIMA_GAMEMODE_EXTRA (one `option=value` per line).
 
 cmd_hyprctl="$(command -v hyprctl 2>/dev/null || true)"
 [ -n "$cmd_hyprctl" ] || exit 0
@@ -42,8 +42,8 @@ decoration:dim_inactive=false
 decoration:rounding=0
 misc:disable_hyprland_logo=true
 "
-if [ -n "${UKISHIMA_GAMEMODE_EXTRA:-}" ]; then
-    strips="$strips"$'\n'"$UKISHIMA_GAMEMODE_EXTRA"
+if [ -n "${FUKUSHIMA_GAMEMODE_EXTRA:-}" ]; then
+    strips="$strips"$'\n'"$FUKUSHIMA_GAMEMODE_EXTRA"
 fi
 
 run_hyprctl() {
