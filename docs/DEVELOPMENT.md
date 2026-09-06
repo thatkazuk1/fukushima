@@ -75,31 +75,38 @@ export PATH="/usr/lib/qt6/bin:$PATH"
 ### Editor setup
 
 Install the **Qt Qml** extension (VS Code: `theqtcompany.qt-qml`, or the Qt
-plugin for your editor). It drives `qmlls`, the QML language server.
-`.vscode/settings.json` points it at the system `qmlls` in `/usr/lib/qt6/bin`.
+plugin for your editor). `.vscode/` is checked in — `settings.json`, `tasks.json`
+and `extensions.json` — so a fresh clone is configured on open.
 
-**How Quickshell types reach the editor.** Quickshell compiles its QML modules
-into the `quickshell` binary, but when it runs it also mirrors them (and your
-config tree) into a per-config VFS under
-`/run/user/$UID/quickshell/vfs/<shell-id>/` and writes a `.qmlls.ini` into the
-repo pointing `qmlls` at it ("QML tooling support enabled" in the launch log).
+**The QML language server (`qmlls`) is disabled here, on purpose.** Two reasons:
 
-Consequences:
+1. **It can't see Quickshell.** Quickshell (0.3.1, distro build) compiles its QML
+   modules into the `quickshell` binary with no on-disk `qmldir`, and this build
+   does not export a tooling VFS or write a `.qmlls.ini`. So `qmlls` cannot
+   resolve `Quickshell`, `Quickshell.Io`, `Quickshell.Hyprland`, … — roughly half
+   of every file shows as unknown types.
+2. **It crashes.** `qmlls` (Qt 6.10) reproducibly `SIGABRT`s while reparsing our
+   larger files (`shell.qml`, `modules/pill/Pill.qml`) — *"Could not construct
+   the JS DOM"*. After a few crashes the extension disables its client and stacks
+   error popups.
 
-- The live shell (loaded from this repo) populates that VFS mirror and
-  writes/refreshes `.qmlls.ini` while it runs and an editor is connected, so
-  Quickshell types resolve for `qmlls` in a normal session. `/run/user` is a
-  tmpfs; a reboot rebuilds it on next login. (A `just dev` session does the same
-  for its own config id.)
-- `.qmlls.ini` is **git-ignored** — it holds absolute machine-specific paths and
-  is disposable. Don't commit it. If your editor isn't picking up Quickshell
-  types, confirm the file exists and points into a `vfs/<id>/` that still exists.
-- `qmllint` does **not** use the VFS, so it still can't type-check Quickshell
-  types. `.qmllint.ini` silences that family and keeps the checks that work
-  without types. That's why `just lint` is real but limited.
+So diagnostics come from **`qmllint`** instead, three equivalent ways:
 
-Keep the [Quickshell type reference](https://quickshell.outfoxxed.me/docs/) open
-regardless.
+- `just lint` (or `just check` for lint + the `lib/` JS tests) in a terminal
+- the **`qmllint`** build task — <kbd>Ctrl+Shift+B</kbd>, or *Tasks: Run Build
+  Task* — which routes findings into the Problems panel via a matcher in
+  `tasks.json`
+- CI runs the same `just check` gate
+
+`qmllint` does not use types either, so it still can't type-check Quickshell
+symbols. `.qmllint.ini` silences that family and keeps the checks that work
+without types (unqualified access, unused imports, JS footguns). That's why
+`just lint` is real but limited — keep the
+[Quickshell type reference](https://quickshell.outfoxxed.me/docs/) open.
+
+To **try `qmlls` anyway** (e.g. a newer build, or if a future Quickshell exports
+tooling): in `.vscode/settings.json` set `qt-qml.qmlls.enabled` to `true` and
+uncomment `customExePath` / `useNoCMakeCalls`.
 
 ## 3. Running your changes
 

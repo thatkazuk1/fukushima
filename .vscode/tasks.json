@@ -1,0 +1,64 @@
+{
+  // qmlls is disabled for this project (see settings.json), so editor
+  // diagnostics come from these tasks. `qmllint` is the default build task —
+  // Ctrl+Shift+B, or "Tasks: Run Build Task". Findings land in the Problems
+  // panel via the matcher below.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "qmllint",
+      "detail": "Static analysis on every tracked .qml (just lint)",
+      "type": "process",
+      "command": "just",
+      "args": ["lint"],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "silent", "clear": true, "panel": "shared" },
+      "problemMatcher": {
+        "owner": "qmllint",
+        "source": "qmllint",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(Warning|Error|Info):\\s+(.+?):(\\d+):(\\d+):\\s+(.+?)(?:\\s+\\[([\\w.-]+)\\])?$",
+          "severity": 1,
+          "file": 2,
+          "line": 3,
+          "column": 4,
+          "message": 5,
+          "code": 6
+        }
+      }
+    },
+    {
+      "label": "check",
+      "detail": "The CI gate: qmllint + lib/ JS tests (just check)",
+      "type": "process",
+      "command": "just",
+      "args": ["check"],
+      "group": "test",
+      "presentation": { "reveal": "always", "clear": true, "panel": "shared" },
+      "problemMatcher": {
+        "owner": "qmllint",
+        "source": "qmllint",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(Warning|Error|Info):\\s+(.+?):(\\d+):(\\d+):\\s+(.+?)(?:\\s+\\[([\\w.-]+)\\])?$",
+          "severity": 1,
+          "file": 2,
+          "line": 3,
+          "column": 4,
+          "message": 5,
+          "code": 6
+        }
+      }
+    },
+    {
+      "label": "doctor",
+      "detail": "Report whether the toolchain is present (just doctor)",
+      "type": "process",
+      "command": "just",
+      "args": ["doctor"],
+      "presentation": { "reveal": "always", "clear": true, "panel": "shared" },
+      "problemMatcher": []
+    }
+  ]
+}

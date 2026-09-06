@@ -1,9 +1,33 @@
 {
-  // Point the Qt extension's bundled tooling at the system Qt 6 install.
-  // Adjust if `qmllint`/`qmlls` live elsewhere on your machine
-  // (find with: dirname "$(find /usr/lib -name qmlls 2>/dev/null | head -1)").
-  "qt-qml.qmlls.customExePath": "/usr/lib/qt6/bin/qmlls",
-  "qt-qml.qmlls.useQmlImportPathEnvVar": true,
+  // ---------------------------------------------------------------------------
+  // The QML language server (qmlls) is DISABLED for this project, on purpose.
+  //
+  // Two reasons it does more harm than good here:
+  //
+  //   1. Quickshell's QML modules are compiled into the `quickshell` binary and
+  //      shipped with no on-disk qmldir, so qmlls cannot resolve `Quickshell`,
+  //      `Quickshell.Io`, `Quickshell.Hyprland`, etc. Roughly half of every file
+  //      lights up as unknown types / unresolved properties.
+  //
+  //   2. qmlls (Qt 6.10) reproducibly SIGABRTs while reparsing our larger files
+  //      (shell.qml, modules/pill/Pill.qml) — "Could not construct the JS DOM".
+  //      After a few crashes the Qt extension disables its client and stacks
+  //      error popups ("server crashed 5 times", "couldn't create connection").
+  //
+  // Diagnostics come from `qmllint` instead:
+  //   - `just lint`  (or `just check` for lint + JS tests)
+  //   - the "qmllint" build task  (Ctrl+Shift+B / Tasks: Run Build Task)
+  //   - CI runs the same gate
+  // Rules live in `.qmllint.ini`. See docs/DEVELOPMENT.md for the rationale.
+  //
+  // To try qmlls anyway: flip `enabled` to true and uncomment the two lines
+  // below. `customExePath` may need adjusting for your machine —
+  //   dirname "$(find /usr/lib -name qmlls 2>/dev/null | head -1)"
+  // ---------------------------------------------------------------------------
+  "qt-qml.qmlls.enabled": false,
+  "qt-qml.doNotAskForQmllsDownload": true,
+  // "qt-qml.qmlls.customExePath": "/usr/lib/qt6/bin/qmlls",
+  // "qt-qml.qmlls.useNoCMakeCalls": true,
 
   "files.associations": {
     "*.qml": "qml",
@@ -13,5 +37,7 @@
     "editor.tabSize": 4,
     "editor.insertSpaces": true
   },
+  // qmlformat collapses the codebase's intentional manual wrapping, so never
+  // format QML on save. Use `just fmt-diff <file>` by hand instead.
   "editor.formatOnSave": false
 }

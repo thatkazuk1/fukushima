@@ -26,7 +26,7 @@ doctor:
     @command -v node       >/dev/null && echo "node:       $(node --version)"                     || echo "node:       MISSING (lib/ tests)"
     @{{qmllint}}   --version >/dev/null 2>&1 && echo "qmllint:    $({{qmllint}} --version)"        || echo "qmllint:    MISSING"
     @{{qmlformat}} --version >/dev/null 2>&1 && echo "qmlformat:  ok"                              || echo "qmlformat:  MISSING"
-    @command -v qmlls >/dev/null 2>&1 || [ -x "{{qtbin}}/qmlls" ] && echo "qmlls:      ok (editor LSP)" || echo "qmlls:      MISSING (editor LSP)"
+    @echo "editor:     qmlls is disabled on purpose (.vscode/settings.json) — qmllint via 'just lint' / the qmllint task is the linter"
 
 # Run this working copy as an isolated dev instance (Ctrl-C to stop).
 dev *args:
