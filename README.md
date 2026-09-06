@@ -168,7 +168,7 @@ Available IPC handlers: `launcher`, `wallpaper`, `clipboard`, `mixer`, `calendar
 
 ### Development
 
-The shell is interpreted QML — edit a file, and Quickshell hot-reloads it. Full setup (QML tooling, LSP, the isolated dev instance) is in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). In short:
+The shell is interpreted QML — edit a file, and Quickshell hot-reloads it. Full setup (QML tooling, editor config, the isolated dev instance) is in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md); [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) covers the layout and [`docs/ROADMAP.md`](docs/ROADMAP.md) where the fork is headed. In short:
 
 ```bash
 sudo apt install just              # task runner
@@ -205,7 +205,7 @@ This is a personal project with no SLA. [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT
 
 ## Contributing
 
-Not actively seeking contributions while the refactor is in flight — the architecture is moving under your feet. Bug reports for real breakage are welcome. Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+Not actively seeking contributions while the refactor is in flight — the architecture is moving under your feet ([`docs/ROADMAP.md`](docs/ROADMAP.md) tracks it). Bug reports for real breakage are welcome. Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
 ## Acknowledgements
 
