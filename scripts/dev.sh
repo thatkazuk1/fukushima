@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run this working copy as a throwaway "dev" instance, side by side with a
-# normally-installed Ukishima.
+# normally-installed Fukushima.
 #
 # Isolation is done entirely through the XDG base dirs: every state/cache path
 # in the shell and its helper scripts is derived from $XDG_STATE_HOME /
@@ -12,7 +12,7 @@
 #
 # Usage:
 #   scripts/dev.sh                 # run in the foreground, Ctrl-C to stop
-#   scripts/dev.sh ipc call ukishima launcher ""   # talk to the running dev instance
+#   scripts/dev.sh ipc call fukushima launcher ""  # talk to the running dev instance
 set -eu
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

@@ -146,25 +146,25 @@ quickshell --config "$HOME/.local/share/quickshell/ukishima"
 
 ### Keybinds
 
-Every surface and action is exposed over Quickshell IPC (target `ukishima`). The `""` argument is the monitor — empty means "focused monitor". Bind whichever you want in your Hyprland config:
+Every surface and action is exposed over Quickshell IPC (target `fukushima`). The `""` argument is the monitor — empty means "focused monitor". Bind whichever you want in your Hyprland config:
 
 ```conf
 # hyprlang (.conf)
-bind = SUPER, SHIFT+W, exec, qs -p ~/.local/share/quickshell/ukishima ipc call ukishima wallpaper ""
-bind = SUPER, SHIFT+V, exec, qs -p ~/.local/share/quickshell/ukishima ipc call ukishima clipboard ""
-bind = SUPER, slash,   exec, qs -p ~/.local/share/quickshell/ukishima ipc call ukishima launcher ""
+bind = SUPER, SHIFT+W, exec, qs -p ~/.local/share/quickshell/ukishima ipc call fukushima wallpaper ""
+bind = SUPER, SHIFT+V, exec, qs -p ~/.local/share/quickshell/ukishima ipc call fukushima clipboard ""
+bind = SUPER, slash,   exec, qs -p ~/.local/share/quickshell/ukishima ipc call fukushima launcher ""
 ```
 
 ```lua
 -- Lua
-hl.bind(var_mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call ukishima wallpaper \"\""))
-hl.bind(var_mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call ukishima clipboard \"\""))
-hl.bind(var_mainMod .. " + slash",     hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call ukishima launcher \"\""))
+hl.bind(var_mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call fukushima wallpaper \"\""))
+hl.bind(var_mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call fukushima clipboard \"\""))
+hl.bind(var_mainMod .. " + slash",     hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell/ukishima ipc call fukushima launcher \"\""))
 ```
 
 If you cloned to `~/.config/quickshell/ukishima` instead, replace `qs -p ~/.local/share/quickshell/ukishima` with `qs -c ukishima`.
 
-Available IPC handlers: `launcher`, `wallpaper`, `clipboard`, `mixer`, `calendar`, `media`, `power`, `link`, `battery`, `sysmon`/`system`, `recorder`/`screenrec`/`record`, `quickRecord`, `gameMode`, `peek`, `hide`, `page`, `minimizeWindow`, `restoreWindow`. The `page` handler takes the monitor first (empty = focused) and the surface name second — `qs -c ukishima ipc call ukishima page "" wifi`.
+Available IPC handlers: `launcher`, `wallpaper`, `clipboard`, `mixer`, `calendar`, `media`, `power`, `link`, `battery`, `sysmon`/`system`, `recorder`/`screenrec`/`record`, `quickRecord`, `gameMode`, `peek`, `hide`, `page`, `minimizeWindow`, `restoreWindow`. The `page` handler takes the monitor first (empty = focused) and the surface name second — `qs -c ukishima ipc call fukushima page "" wifi`.
 
 ### Development
 

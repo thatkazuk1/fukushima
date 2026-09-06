@@ -53,7 +53,7 @@ done
 IPC_PREFIX="qs -p $INSTALL_ROOT"
 
 printf '
-\033[1;32mUkishima installed!\033[0m
+\033[1;32mFukushima installed!\033[0m
 
 Add these to your Hyprland config:
 
@@ -61,14 +61,14 @@ Add these to your Hyprland config:
     exec-once = quickshell --config %s
 
   Keybinds (hyprlang):
-    bind = SUPER, SHIFT+W, exec, %s ipc call ukishima wallpaper ""
-    bind = SUPER, SHIFT+V, exec, %s ipc call ukishima clipboard ""
-    bind = SUPER, slash,   exec, %s ipc call ukishima launcher ""
+    bind = SUPER, SHIFT+W, exec, %s ipc call fukushima wallpaper ""
+    bind = SUPER, SHIFT+V, exec, %s ipc call fukushima clipboard ""
+    bind = SUPER, slash,   exec, %s ipc call fukushima launcher ""
 
   Keybinds (lua):
-    hl.bind(var_mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("%s ipc call ukishima wallpaper \\\"\\\""))
-    hl.bind(var_mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("%s ipc call ukishima clipboard \\\"\\\""))
-    hl.bind(var_mainMod .. " + slash",     hl.dsp.exec_cmd("%s ipc call ukishima launcher \\\"\\\""))
+    hl.bind(var_mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("%s ipc call fukushima wallpaper \\\"\\\""))
+    hl.bind(var_mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("%s ipc call fukushima clipboard \\\"\\\""))
+    hl.bind(var_mainMod .. " + slash",     hl.dsp.exec_cmd("%s ipc call fukushima launcher \\\"\\\""))
 
   Launch manually:
     quickshell --config %s

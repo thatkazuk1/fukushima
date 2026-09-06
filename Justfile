@@ -41,7 +41,7 @@ dev *args:
 # Talk to the running dev instance over IPC. `mon` defaults to the focused
 # monitor: `just ipc launcher`, `just ipc page "" wifi`, `just ipc peek DP-1`.
 ipc handler mon='""' *args:
-    scripts/dev.sh ipc call ukishima {{handler}} {{mon}} {{args}}
+    scripts/dev.sh ipc call fukushima {{handler}} {{mon}} {{args}}
 
 # Static analysis on every QML file (config in .qmllint.ini).
 lint:

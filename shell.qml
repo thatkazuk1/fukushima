@@ -127,7 +127,7 @@ ShellRoot {
     }
 
     IpcHandler {
-        target: "ukishima"
+        target: "fukushima"
         function mixer(mon: string): void { root.toggleSurface(mon, "mixer"); }
         function calendar(mon: string): void { root.toggleSurface(mon, "calendar"); }
         function launcher(mon: string): void { root.toggleSurface(mon, "launcher"); }
