@@ -56,7 +56,7 @@ ShellRoot {
         color: "transparent"
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.layer: WlrLayer.Background
-        WlrLayershell.namespace: "ukishima-inhibit"
+        WlrLayershell.namespace: "fukushima-inhibit"
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
         anchors { top: true; left: true }
         IdleInhibitor { window: inhibitWin; enabled: Flags.keepAwake }
@@ -261,7 +261,7 @@ ShellRoot {
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.layer: WlrLayer.Overlay
             WlrLayershell.keyboardFocus: ((surfaceOpen || pill.quickChoosing)) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-            WlrLayershell.namespace: "ukishima"
+            WlrLayershell.namespace: "fukushima"
 
             anchors { top: true; left: true; right: true; bottom: true }
 

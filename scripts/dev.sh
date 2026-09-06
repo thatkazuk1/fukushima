@@ -7,8 +7,9 @@
 # $XDG_CACHE_HOME, so redirecting those two into ./.dev/ keeps the dev instance
 # from touching your real ~/.local/state/ukishima* and ~/.cache/ukishima*.
 #
-# The Wayland layer-shell namespace is still "ukishima" (compositors allow
-# duplicates); a dedicated --dev namespace suffix lands with the Paths refactor.
+# The dev instance shares the "fukushima" layer-shell namespace with a running
+# live shell (compositors allow duplicates); a dedicated --dev namespace suffix
+# lands with the Paths refactor.
 #
 # Usage:
 #   scripts/dev.sh                 # run in the foreground, Ctrl-C to stop
