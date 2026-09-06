@@ -1,6 +1,6 @@
 # Preview gallery
 
-A full gallery of Ukishima screenshots. The main README shows only a few highlights; here are all of them.
+A full gallery of screenshots (from upstream Ukishima — these predate the fork and will be refreshed). The main README shows only a few highlights; here are all of them.
 
 [Back to main README](../../README.md)
 

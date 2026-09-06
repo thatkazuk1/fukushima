@@ -1,4 +1,4 @@
-# 浮島 Ukishima
+# 福島 Fukushima
 
 A dynamic-island [Quickshell](https://quickshell.outfoxxed.me) shell for Hyprland — one morphing pill per monitor, every surface grown from the pill itself.
 
@@ -27,11 +27,11 @@ A dynamic-island [Quickshell](https://quickshell.outfoxxed.me) shell for Hyprlan
 
 ## About the Project
 
-Ukishima (浮島, *"floating island"*) is a widget layer for Hyprland built around a single morphing pill at the top of every monitor. Collapsed, it is a thin warm-vermillion strip; hover it and it expands in place into a control centre — workspace dots, clock, media, system readouts — and every module grows its own surface out of the pill itself. Nothing ever pops up as a separate panel.
+Fukushima (福島) is a widget layer for Hyprland built around a single morphing pill at the top of every monitor. Collapsed, it is a thin warm-vermillion strip; hover it and it expands in place into a control centre — workspace dots, clock, media, system readouts — and every module grows its own surface out of the pill itself. Nothing ever pops up as a separate panel.
 
 The project is fully self-contained. It makes no changes to existing Hyprland config files; the auto-launch line and the keybinds are the only things you add yourself.
 
-This is a fork. See [Acknowledgements](#acknowledgements) for the lineage.
+This is a fork of amanhex's **Ukishima** (浮島, *"floating island"*) — the name keeps the *-shima*. See [Acknowledgements](#acknowledgements) for the full lineage. The runtime identifiers (IPC target, Wayland namespaces, `~/.local/state` and `~/.cache` paths) are still `ukishima` pending a deeper rename, so the commands below use that name verbatim.
 
 ## Features
 
@@ -176,7 +176,7 @@ just doctor                        # confirm the toolchain
 just dev                           # run this checkout as an isolated instance
 ```
 
-`just dev` runs alongside a normally-installed Ukishima without touching its state.
+`just dev` runs alongside a normally-installed instance without touching its state.
 
 ### Testing
 
@@ -197,7 +197,7 @@ There is no automated UI test (it would need a live compositor). After a behavio
 curl -fsSL https://raw.githubusercontent.com/thatkazuk1/ukishima/master/uninstall.sh | bash
 ```
 
-Removes the program files, all state (`~/.local/state/ukishima*`) and all caches (`~/.cache/ukishima*`, `~/.cache/cliphist-thumbs`, `~/.cache/pill`), and stops any running instance. You still remove the `exec-once` line and the keybinds from your Hyprland config yourself, and uninstall any dependencies you added only for Ukishima.
+Removes the program files, all state (`~/.local/state/ukishima*`) and all caches (`~/.cache/ukishima*`, `~/.cache/cliphist-thumbs`, `~/.cache/pill`), and stops any running instance. You still remove the `exec-once` line and the keybinds from your Hyprland config yourself, and uninstall any dependencies you added only for this.
 
 ## How to Get Help
 
@@ -209,12 +209,12 @@ Not actively seeking contributions while the refactor is in flight — the archi
 
 ## Acknowledgements
 
-Ukishima stands on two projects it borrows heavily from:
+Fukushima stands on two projects it borrows heavily from:
 
 - **[Ricelin](https://github.com/Gakuseei/Ricelin)** by **[Gakuseei](https://github.com/Gakuseei)** — the origin of the pill concept, the morphing-surface architecture and most of the original shell code.
 - **[Ukishima](https://github.com/amanhex/Ukishima)** by **[amanhex](https://github.com/amanhex)** — the fork of Ricelin that extended and rebranded it into the pill shell this repo is based on.
 
-This repo is a fork of amanhex's Ukishima and continues that work. All credit for the base code goes to the original authors; the `MIT` licence and their copyright are retained in [`LICENSE`](LICENSE).
+Lineage: Ricelin → Ukishima → Fukushima. This repo forks amanhex's Ukishima and continues that work. All credit for the base code goes to the original authors; the `MIT` licence and their copyright are retained in [`LICENSE`](LICENSE).
 
 ## Authors
 

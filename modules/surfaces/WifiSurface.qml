@@ -10,7 +10,7 @@ import "../../services"
 import "../../components"
 
 /**
- * 波 WIFI surface. Mirrors omarchy Quattro's network panel in Ukishima's
+ * 波 WIFI surface. Mirrors omarchy Quattro's network panel in Fukushima's
  * language: a live vitals grid (ping / packet loss, receive + send rates,
  * session totals, IP / gateway) fed by the Network service, a Wi-Fi band
  * selector, QR sharing and an inline speed test, over the existing signal-sorted

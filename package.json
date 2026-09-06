@@ -1,7 +1,7 @@
 {
-  "name": "ukishima",
+  "name": "fukushima",
   "private": true,
-  "description": "Pure-JS logic modules extracted from Ukishima's QML, plus their Node tests.",
+  "description": "Pure-JS logic modules extracted from Fukushima's QML, plus their Node tests.",
   "scripts": {
     "test": "for f in lib/*.test.mjs; do echo \"→ $f\"; node \"$f\" || exit 1; done"
   },

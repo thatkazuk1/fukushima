@@ -6,7 +6,7 @@ import Quickshell
  * Path authority for the pill, kept as one self-locating source of truth. The
  * app root is this file's own directory tree (the quickshell project folder),
  * so nothing depends on where the shell was launched from or on exported
- * UKISHIMA_* environment variables. Hyprland-compat outputs (hypr/*,
+ * FUKUSHIMA_* environment variables. Hyprland-compat outputs (hypr/*,
  * hyprsunset.conf and scripts/) all resolve under the same project folder.
  */
 Singleton {

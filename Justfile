@@ -1,4 +1,4 @@
-# Ukishima dev tasks. Run `just` for the list.
+# Fukushima dev tasks. Run `just` for the list.
 #
 # The Qt QML tools (qmllint / qmlformat / qmlls) ship with Qt but are often not
 # on PATH. `qtbin` finds them: PATH first, then the usual distro locations.

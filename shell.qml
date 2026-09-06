@@ -11,7 +11,7 @@ import "modules/pill"
 import "modules/osd"
 
 /**
- * Ukishima top shell. Each monitor carries two layer-shell windows:
+ * Fukushima top shell. Each monitor carries two layer-shell windows:
  *
  *  - `reserve` is a zero-content strip that only claims an exclusive zone the
  *    height of the rest pill, so tiled windows always sit below the pill even
