@@ -3,14 +3,14 @@ MAGICK_CONFIGURE_PATH="$(dirname "$0")/magick-policy"
 export MAGICK_CONFIGURE_PATH
 
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}"
-flags="$STATE/ukishima/flags.json"
+flags="$STATE/fukushima/flags.json"
 raw=$(jq -r '.wallpaperDir // ""' "$flags" 2>/dev/null || echo "")
-[ -n "$raw" ] || raw=$(cat "$STATE/ukishima-wallpaper-dir" 2>/dev/null || true)
+[ -n "$raw" ] || raw=$(cat "$STATE/fukushima-wallpaper-dir" 2>/dev/null || true)
 [ -n "$raw" ] || raw="$HOME/Pictures/Wallpapers"
 # Drop any trailing slash so a flags/state trailing-slash drift cannot spawn a
 # second cache directory (the folder hash must match the pill's listing hash).
 wpdir=$(printf %s "$raw" | sed 's#/*$##')
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/ukishima-wp-thumbs"
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/fukushima-wp-thumbs"
 # Each wallpaper folder gets its own subdirectory keyed by the hash of its
 # normalized path, so files that share a basename across folders never stomp
 # each other and switching folders cannot show a stale thumb from the other
@@ -82,7 +82,7 @@ done
 # strip resolve the same key, so after a sweep thumb pngs match the wallpaper
 # count exactly.
 raw_flags=$(jq -r '.wallpaperDir // ""' "$flags" 2>/dev/null || echo "")
-raw_state=$(cat "$STATE/ukishima-wallpaper-dir" 2>/dev/null || true)
+raw_state=$(cat "$STATE/fukushima-wallpaper-dir" 2>/dev/null || true)
 for d in "$cache"/*/; do
     [ -d "$d" ] || continue
     k=$(basename "$d")

@@ -17,7 +17,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-CACHE = Path.home() / ".cache" / "ukishima"
+CACHE = Path.home() / ".cache" / "fukushima"
 
 SURF_NAMES = ["surface", "surface_container_low", "surface_container",
               "surface_container_high", "surface_container_highest", "outline_variant"]

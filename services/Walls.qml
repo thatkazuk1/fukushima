@@ -18,7 +18,7 @@ import "../config"
  *
  * The folder resolves through one chain, first hit wins: an explicit
  * `wallpaperDir` in flags.json, then the dir wallpaper.sh resolved and wrote
- * to the ukishima-wallpaper-dir state file on its last run, then
+ * to the fukushima-wallpaper-dir state file on its last run, then
  * ~/Pictures/Wallpapers for a first boot before wallpaper.sh init has run.
  *
  * The pipeline is triggered by the wallpaper strip's refresh button, an
@@ -28,7 +28,7 @@ import "../config"
  * rebuilds. A warm snapshot (list + thumbs intact) costs one ~10ms stat on
  * open instead of a full rebuild on every visit.
  *
- * Thumbs live in per-folder subdirectories of the ukishima-wp-thumbs cache, each
+ * Thumbs live in per-folder subdirectories of the fukushima-wp-thumbs cache, each
  * keyed by the md5 of its wallpaper folder's path. Files sharing a basename
  * across folders therefore never clobber each other, and switching folders
  * can't surface a stale thumb from the previous one; each folder's cache is
@@ -64,11 +64,11 @@ Singleton {
     property string resolvedDir: ""
     readonly property string wpDir: Flags.wallpaperDir.length > 0 ? Flags.wallpaperDir
         : (resolvedDir.length > 0 ? resolvedDir : Quickshell.env("HOME") + "/Pictures/Wallpapers")
-    readonly property string thumbDir: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/ukishima-wp-thumbs/"
+    readonly property string thumbDir: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/fukushima-wp-thumbs/"
     readonly property string thumbScript: Config.hyprPath("scripts", "wallpaper-thumbs.sh")
     readonly property string setScript: Config.hyprPath("scripts", "wallpaper.sh")
-    readonly property string stateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/ukishima-wallpaper"
-    readonly property string dirStateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/ukishima-wallpaper-dir"
+    readonly property string stateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/fukushima-wallpaper"
+    readonly property string dirStateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/fukushima-wallpaper-dir"
 
     FileView {
         id: dirFile

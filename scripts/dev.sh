@@ -5,7 +5,7 @@
 # Isolation is done entirely through the XDG base dirs: every state/cache path
 # in the shell and its helper scripts is derived from $XDG_STATE_HOME /
 # $XDG_CACHE_HOME, so redirecting those two into ./.dev/ keeps the dev instance
-# from touching your real ~/.local/state/ukishima* and ~/.cache/ukishima*.
+# from touching your real ~/.local/state/fukushima* and ~/.cache/fukushima*.
 #
 # The dev instance shares the "fukushima" layer-shell namespace with a running
 # live shell (compositors allow duplicates); a dedicated --dev namespace suffix

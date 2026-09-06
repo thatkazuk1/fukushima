@@ -79,7 +79,7 @@ PillSurface {
     ameForm: "caret"
     amePoint: Qt.point(caretX, caretY)
 
-    readonly property string usageFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/ukishima/launcher-usage.json"
+    readonly property string usageFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/fukushima/launcher-usage.json"
 
     readonly property var allEntries: {
         var src = DesktopEntries.applications.values;

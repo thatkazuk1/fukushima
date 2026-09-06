@@ -73,8 +73,8 @@ Add these to your Hyprland config:
   Launch manually:
     quickshell --config %s
 
-  State: ~/.local/state/ukishima
-  Cache: ~/.cache/ukishima
+  State: ~/.local/state/fukushima
+  Cache: ~/.cache/fukushima
 ' "$INSTALL_ROOT" "$IPC_PREFIX" "$IPC_PREFIX" "$IPC_PREFIX" "$IPC_PREFIX" "$IPC_PREFIX" "$IPC_PREFIX" "$INSTALL_ROOT"
 
 [ "$missing" -eq 0 ] || printf '\n\033[1;31mSome core dependencies are missing — install them for full functionality.\033[0m\n' >&2

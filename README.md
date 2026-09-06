@@ -31,7 +31,7 @@ Fukushima (福島) is a widget layer for Hyprland built around a single morphing
 
 The project is fully self-contained. It makes no changes to existing Hyprland config files; the auto-launch line and the keybinds are the only things you add yourself.
 
-This is a fork of amanhex's **Ukishima** (浮島, *"floating island"*) — the name keeps the *-shima*. See [Acknowledgements](#acknowledgements) for the full lineage. The runtime identifiers (IPC target, Wayland namespaces, `~/.local/state` and `~/.cache` paths) are still `ukishima` pending a deeper rename, so the commands below use that name verbatim.
+This is a fork of amanhex's **Ukishima** (浮島, *"floating island"*) — the name keeps the *-shima*. See [Acknowledgements](#acknowledgements) for the full lineage. The IPC target, Wayland namespaces and state/cache paths are all `fukushima`; the **install directory** and the Quickshell **config name** below are still `ukishima` pending a rename.
 
 ## Features
 
@@ -188,8 +188,8 @@ There is no automated UI test (it would need a live compositor). After a behavio
 
 ### State & Cache
 
-- **state:** `$XDG_STATE_HOME/ukishima` (default `~/.local/state/ukishima`) — flags, events, gamemode snapshot; the wallpaper selection lives in sibling `~/.local/state/ukishima-wallpaper*` files.
-- **cache:** `$XDG_CACHE_HOME/ukishima` (default `~/.cache/ukishima`) — palette JSON and record thumbnails; wallpaper previews under `ukishima-wp-thumbs/`, clipboard previews under `cliphist-thumbs/`, weather location under `pill/`.
+- **state:** `$XDG_STATE_HOME/fukushima` (default `~/.local/state/fukushima`) — flags, events, gamemode snapshot; the wallpaper selection lives in sibling `~/.local/state/fukushima-wallpaper*` files.
+- **cache:** `$XDG_CACHE_HOME/fukushima` (default `~/.cache/fukushima`) — palette JSON and record thumbnails; wallpaper previews under `fukushima-wp-thumbs/`, clipboard previews under `cliphist-thumbs/`, weather location under `pill/`.
 
 ### Uninstalling
 
@@ -197,7 +197,7 @@ There is no automated UI test (it would need a live compositor). After a behavio
 curl -fsSL https://raw.githubusercontent.com/thatkazuk1/ukishima/master/uninstall.sh | bash
 ```
 
-Removes the program files, all state (`~/.local/state/ukishima*`) and all caches (`~/.cache/ukishima*`, `~/.cache/cliphist-thumbs`, `~/.cache/pill`), and stops any running instance. You still remove the `exec-once` line and the keybinds from your Hyprland config yourself, and uninstall any dependencies you added only for this.
+Removes the program files, all state (`~/.local/state/fukushima*`) and all caches (`~/.cache/fukushima*`, `~/.cache/cliphist-thumbs`, `~/.cache/pill`), and stops any running instance. You still remove the `exec-once` line and the keybinds from your Hyprland config yourself, and uninstall any dependencies you added only for this.
 
 ## How to Get Help
 

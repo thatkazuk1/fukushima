@@ -34,7 +34,7 @@ Singleton {
 
     FileView {
         id: file
-        path: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/ukishima/colors.json"
+        path: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/fukushima/colors.json"
         blockLoading: true
         watchChanges: true
         printErrors: false

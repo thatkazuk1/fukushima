@@ -59,7 +59,7 @@ Singleton {
 
     FileView {
         id: file
-        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/ukishima/flags.json"
+        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/fukushima/flags.json"
         blockLoading: true
         watchChanges: true
         printErrors: false
@@ -81,7 +81,7 @@ Singleton {
             property string mainDisplay: "minimal"
             property bool showGlyphs: true
             property string paletteMode: "static"
-            /** Explicit wallpaper folder override. Empty means autodetect: the dir wallpaper.sh last resolved (ukishima-wallpaper-dir state file), then ~/Pictures/Wallpapers. Lives in user state so an in-app update never clobbers a custom folder. */
+            /** Explicit wallpaper folder override. Empty means autodetect: the dir wallpaper.sh last resolved (fukushima-wallpaper-dir state file), then ~/Pictures/Wallpapers. Lives in user state so an in-app update never clobbers a custom folder. */
             property string wallpaperDir: ""
             /** Still/video wallpaper scaling: awww --resize "no" (center), "crop" (cover), "fit" (contain) or "stretch", driving the strip's Cover/Contain/Stretch/Center control. */
             property string wallpaperFit: "crop"

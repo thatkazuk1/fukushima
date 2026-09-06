@@ -29,7 +29,7 @@
 cmd_hyprctl="$(command -v hyprctl 2>/dev/null || true)"
 [ -n "$cmd_hyprctl" ] || exit 0
 
-state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/ukishima"
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/fukushima"
 state="$state_dir/gamemode.state"
 
 # option=value targets applied while game mode is on.

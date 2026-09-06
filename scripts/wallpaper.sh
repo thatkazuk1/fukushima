@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-flags_file="${XDG_STATE_HOME:-$HOME/.local/state}/ukishima/flags.json"
+flags_file="${XDG_STATE_HOME:-$HOME/.local/state}/fukushima/flags.json"
 WPDIR=$(jq -r '.wallpaperDir // ""' "$flags_file" 2>/dev/null || echo "")
 FIT=$(jq -r '.wallpaperFit // "crop"' "$flags_file" 2>/dev/null || echo crop)
 case "$FIT" in no|crop|fit|stretch) ;; *) FIT=crop ;; esac
@@ -16,16 +16,16 @@ if [ -z "$WPDIR" ]; then
     done
     [ -n "$WPDIR" ] || WPDIR="$HOME/Pictures/Wallpapers"
 fi
-RESOLVED="${XDG_STATE_HOME:-$HOME/.local/state}/ukishima-wallpaper-dir"
+RESOLVED="${XDG_STATE_HOME:-$HOME/.local/state}/fukushima-wallpaper-dir"
 printf '%s\n' "$WPDIR" > "$RESOLVED"
 # No-op mode for the QML side: re-resolve the folder and exit before touching any daemon state.
 [ "${1:-}" = "resolve" ] && exit 0
-STATE="${XDG_STATE_HOME:-$HOME/.local/state}/ukishima-wallpaper"
-MAP="${XDG_STATE_HOME:-$HOME/.local/state}/ukishima-wallpaper-map"
-BAG="${XDG_STATE_HOME:-$HOME/.local/state}/ukishima-wallpaper-bag"
-STILL="${XDG_STATE_HOME:-$HOME/.local/state}/ukishima-wallpaper-still.png"
-FIT_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/ukishima-wallpaper-fit"
-WLOG="${XDG_STATE_HOME:-$HOME/.local/state}/ukishima/wallcolors.log"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/fukushima-wallpaper"
+MAP="${XDG_STATE_HOME:-$HOME/.local/state}/fukushima-wallpaper-map"
+BAG="${XDG_STATE_HOME:-$HOME/.local/state}/fukushima-wallpaper-bag"
+STILL="${XDG_STATE_HOME:-$HOME/.local/state}/fukushima-wallpaper-still.png"
+FIT_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/fukushima-wallpaper-fit"
+WLOG="${XDG_STATE_HOME:-$HOME/.local/state}/fukushima/wallcolors.log"
 
 is_video() {
     case "${1##*.}" in
