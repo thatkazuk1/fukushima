@@ -35,10 +35,12 @@ otherwise interleave.
   into `./.dev/`).
 - `.qmllint.ini` tuned for a no-C++-types project; `.editorconfig`; CI workflow
   running `just check`.
-- `.vscode/` checked in. **qmlls is disabled deliberately** — it can't resolve
-  Quickshell's compiled-in types and `SIGABRT`s on the larger files; `qmllint`
-  (via `just lint` or the `qmllint` build task) is the linter. Rationale in
-  [`DEVELOPMENT.md`](DEVELOPMENT.md#editor-setup).
+- `.vscode/` checked in; `qmlls` enabled. A Qt 6.10 qmldom `SIGABRT` (a
+  `function` declaration inside a binding block) was tracked down to two files
+  and fixed. Quickshell's own singletons/components resolve via its tooling VFS
+  (one-time `touch .qmlls.ini` + reload); the compiled-in framework types don't,
+  and `.qmllint.ini` mutes that family. `just lint` / the `qmllint` build task
+  are the terminal/CI diagnostics. See [`DEVELOPMENT.md`](DEVELOPMENT.md#editor-setup).
 - `lib/*.js` + `*.test.mjs` wired to Node; `docs/DEVELOPMENT.md`,
   `docs/ARCHITECTURE.md`.
 

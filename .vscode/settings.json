@@ -1,33 +1,28 @@
 {
   // ---------------------------------------------------------------------------
-  // The QML language server (qmlls) is DISABLED for this project, on purpose.
+  // QML language server (qmlls). Enabled, pointed at the system Qt 6 build.
   //
-  // Two reasons it does more harm than good here:
+  //  * customExePath — the distro ships qmlls in /usr/lib/qt6/bin, off PATH.
+  //    Adjust for your machine:
+  //      dirname "$(find /usr/lib -name qmlls 2>/dev/null | head -1)"
+  //  * useNoCMakeCalls — this is not a CMake project; stop qmlls shelling out.
+  //  * doNotAskForQmllsDownload — don't nag to fetch the Qt Company build; the
+  //    system one is newer.
   //
-  //   1. Quickshell's QML modules are compiled into the `quickshell` binary and
-  //      shipped with no on-disk qmldir, so qmlls cannot resolve `Quickshell`,
-  //      `Quickshell.Io`, `Quickshell.Hyprland`, etc. Roughly half of every file
-  //      lights up as unknown types / unresolved properties.
-  //
-  //   2. qmlls (Qt 6.10) reproducibly SIGABRTs while reparsing our larger files
-  //      (shell.qml, modules/pill/Pill.qml) — "Could not construct the JS DOM".
-  //      After a few crashes the Qt extension disables its client and stacks
-  //      error popups ("server crashed 5 times", "couldn't create connection").
-  //
-  // Diagnostics come from `qmllint` instead:
-  //   - `just lint`  (or `just check` for lint + JS tests)
-  //   - the "qmllint" build task  (Ctrl+Shift+B / Tasks: Run Build Task)
-  //   - CI runs the same gate
-  // Rules live in `.qmllint.ini`. See docs/DEVELOPMENT.md for the rationale.
-  //
-  // To try qmlls anyway: flip `enabled` to true and uncomment the two lines
-  // below. `customExePath` may need adjusting for your machine —
-  //   dirname "$(find /usr/lib -name qmlls 2>/dev/null | head -1)"
+  // Quickshell type resolution: when the shell runs with a `.qmlls.ini` present
+  // at the repo root, Quickshell mirrors the config tree into a VFS and rewrites
+  // `.qmlls.ini` to point qmlls at it — so our own singletons/components resolve
+  // under the `qs` module. A fresh clone has no `.qmlls.ini`; create the seed
+  // and reload once:  `touch .qmlls.ini && qs kill && hyprctl dispatch exec quickshell`
+  // The Quickshell *framework* types (PanelWindow, Process, Variants, …) are
+  // compiled into the binary with no on-disk type info and stay unresolved;
+  // `.qmllint.ini` mutes that family for both qmlls and `just lint`.
+  // See docs/DEVELOPMENT.md → "Editor setup".
   // ---------------------------------------------------------------------------
-  "qt-qml.qmlls.enabled": false,
+  "qt-qml.qmlls.enabled": true,
+  "qt-qml.qmlls.customExePath": "/usr/lib/qt6/bin/qmlls",
+  "qt-qml.qmlls.useNoCMakeCalls": true,
   "qt-qml.doNotAskForQmllsDownload": true,
-  // "qt-qml.qmlls.customExePath": "/usr/lib/qt6/bin/qmlls",
-  // "qt-qml.qmlls.useNoCMakeCalls": true,
 
   "files.associations": {
     "*.qml": "qml",

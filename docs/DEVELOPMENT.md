@@ -76,37 +76,56 @@ export PATH="/usr/lib/qt6/bin:$PATH"
 
 Install the **Qt Qml** extension (VS Code: `theqtcompany.qt-qml`, or the Qt
 plugin for your editor). `.vscode/` is checked in — `settings.json`, `tasks.json`
-and `extensions.json` — so a fresh clone is configured on open.
+and `extensions.json` — so a fresh clone is configured on open. It runs `qmlls`,
+the QML language server, pointed at the system Qt 6 build in `/usr/lib/qt6/bin`
+(adjust `qt-qml.qmlls.customExePath` for your machine).
 
-**The QML language server (`qmlls`) is disabled here, on purpose.** Two reasons:
+**One-time step to resolve our own types.** Quickshell only turns on editor
+tooling when a `.qmlls.ini` already exists at the repo root. Seed it and reload
+the shell once:
 
-1. **It can't see Quickshell.** Quickshell (0.3.1, distro build) compiles its QML
-   modules into the `quickshell` binary with no on-disk `qmldir`, and this build
-   does not export a tooling VFS or write a `.qmlls.ini`. So `qmlls` cannot
-   resolve `Quickshell`, `Quickshell.Io`, `Quickshell.Hyprland`, … — roughly half
-   of every file shows as unknown types.
-2. **It crashes.** `qmlls` (Qt 6.10) reproducibly `SIGABRT`s while reparsing our
-   larger files (`shell.qml`, `modules/pill/Pill.qml`) — *"Could not construct
-   the JS DOM"*. After a few crashes the extension disables its client and stacks
-   error popups.
+```bash
+just qmlls-init          # touches .qmlls.ini
+qs kill && hyprctl dispatch exec quickshell
+```
 
-So diagnostics come from **`qmllint`** instead, three equivalent ways:
+Quickshell then mirrors the config tree into a VFS under
+`/run/user/$UID/quickshell/vfs/<id>/` and rewrites `.qmlls.ini` (now a symlink)
+to point `qmlls` at it, so our singletons and components resolve under the `qs`
+module. The file is git-ignored — it holds absolute machine paths — and `/run`
+is a tmpfs, so redo the `touch` + reload after a reboot if resolution drops.
+The launch log prints `QML tooling support enabled` when it takes.
 
-- `just lint` (or `just check` for lint + the `lib/` JS tests) in a terminal
-- the **`qmllint`** build task — <kbd>Ctrl+Shift+B</kbd>, or *Tasks: Run Build
-  Task* — which routes findings into the Problems panel via a matcher in
-  `tasks.json`
-- CI runs the same `just check` gate
-
-`qmllint` does not use types either, so it still can't type-check Quickshell
-symbols. `.qmllint.ini` silences that family and keeps the checks that work
-without types (unqualified access, unused imports, JS footguns). That's why
-`just lint` is real but limited — keep the
+**What still won't resolve.** The Quickshell *framework* types — `PanelWindow`,
+`Process`, `Variants`, `IpcHandler`, `Quickshell.Hyprland.*` — are compiled into
+the `quickshell` binary (this distro build ships no on-disk type info), so
+`qmlls` can't see them. `.qmllint.ini` mutes that family for both `qmlls` and
+`qmllint`, so they don't show as errors, but you get no completion or hover for
+them — keep the
 [Quickshell type reference](https://quickshell.outfoxxed.me/docs/) open.
 
-To **try `qmlls` anyway** (e.g. a newer build, or if a future Quickshell exports
-tooling): in `.vscode/settings.json` set `qt-qml.qmlls.enabled` to `true` and
-uncomment `customExePath` / `useNoCMakeCalls`.
+**A qmldom crash to know about.** A `function` *declaration* placed among the
+statements of a QML binding block —
+
+```qml
+readonly property string x: {
+    var c = foo;
+    function helper() { ... }   // <-- crashes qmlls (Qt 6.10 qmldom bug)
+    return helper(c);
+}
+```
+
+— `SIGABRT`s `qmlls` outright (*"Could not construct the JS DOM"*). Hoist the
+helper to a component method instead. Nested functions inside a *function
+expression* (a `.sort(function () { ... })` callback, a signal handler body) are
+fine — only the bare binding block bites.
+
+Diagnostics also run from the terminal / CI:
+
+- `just lint` — `qmllint` over every tracked `.qml` (`.qmllint.ini` config)
+- `just check` — that plus the `lib/` JS tests; this is the CI gate
+- the **`qmllint`** build task (<kbd>Ctrl+Shift+B</kbd>) routes findings into the
+  Problems panel
 
 ## 3. Running your changes
 

@@ -26,7 +26,13 @@ doctor:
     @command -v node       >/dev/null && echo "node:       $(node --version)"                     || echo "node:       MISSING (lib/ tests)"
     @{{qmllint}}   --version >/dev/null 2>&1 && echo "qmllint:    $({{qmllint}} --version)"        || echo "qmllint:    MISSING"
     @{{qmlformat}} --version >/dev/null 2>&1 && echo "qmlformat:  ok"                              || echo "qmlformat:  MISSING"
-    @echo "editor:     qmlls is disabled on purpose (.vscode/settings.json) — qmllint via 'just lint' / the qmllint task is the linter"
+    @{{qtbin}}/qmlls --help >/dev/null 2>&1 && echo "qmlls:      ok"                               || echo "qmlls:      MISSING (editor LSP)"
+    @[ -e .qmlls.ini ] && echo "qmlls.ini:  present (Quickshell type mirror active)"                || echo "qmlls.ini:  missing — run 'just qmlls-init' for editor type resolution"
+
+# Seed .qmlls.ini so Quickshell mirrors its types for the editor (run once per checkout / after a reboot).
+qmlls-init:
+    @touch .qmlls.ini
+    @echo "Seeded .qmlls.ini. Now reload the shell:  qs kill && hyprctl dispatch exec quickshell"
 
 # Run this working copy as an isolated dev instance (Ctrl-C to stop).
 dev *args:
