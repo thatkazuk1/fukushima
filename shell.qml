@@ -8,7 +8,6 @@ import Quickshell.Hyprland
 import "config"
 import "services"
 import "modules/pill"
-import "modules/surfaces"
 import "modules/osd"
 
 /**
