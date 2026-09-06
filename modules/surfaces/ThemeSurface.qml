@@ -33,10 +33,11 @@ SettingsSurface {
     readonly property string themeMode: Flags.paletteMode === "static" ? "dark" : Flags.paletteMode
 
     readonly property color accentColor: Qt.hsla(Flags.manualHue / 360, Flags.manualSat, Flags.manualDark ? 0.5 : 0.62, 1)
-    readonly property string currentHex: {
-        var c = accentColor;
-        function h(x) { return ("0" + Math.round(x * 255).toString(16)).slice(-2); }
-        return ("#" + h(c.r) + h(c.g) + h(c.b)).toUpperCase();
+    readonly property string currentHex: ("#" + hexPair(accentColor.r) + hexPair(accentColor.g) + hexPair(accentColor.b)).toUpperCase()
+
+    /** One colour channel (0..1) as a two-digit hex string. */
+    function hexPair(x) {
+        return ("0" + Math.round(x * 255).toString(16)).slice(-2);
     }
 
     function applyManual() {

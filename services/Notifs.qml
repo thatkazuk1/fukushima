@@ -47,22 +47,13 @@ Singleton {
             if (map[h.app] === undefined) { map[h.app] = []; order.push(h.app); }
             map[h.app].push({ live: false, n: h, t: h.ts || 0 });
         }
-        function coalesce(list, it) {
-            var last = list.length > 0 ? list[list.length - 1] : null;
-            if (last && last.n.summary === it.n.summary && last.n.body === it.n.body) {
-                last.count++;
-                last.items.push(it.n);
-            } else {
-                list.push({ live: it.live, n: it.n, count: 1, items: [it.n] });
-            }
-        }
         var gs = order.map(function(app) {
             var items = map[app];
             items.sort(function(a, b) { return b.t - a.t; });
             var criticals = [];
             var entries = [];
             for (var k = 0; k < items.length; k++)
-                coalesce(items[k].n.urgency === NotificationUrgency.Critical ? criticals : entries, items[k]);
+                root.coalesceInto(items[k].n.urgency === NotificationUrgency.Critical ? criticals : entries, items[k]);
             var preview = items.find(function(it) { return it.n.urgency !== NotificationUrgency.Critical; });
             return {
                 app: app,
@@ -76,6 +67,22 @@ Singleton {
         });
         gs.sort(function(a, b) { return b.t - a.t; });
         return gs;
+    }
+
+    /**
+     * Fold `it` into `list`: bump the run count on the last entry when its
+     * summary and body match, otherwise append a fresh entry. Kept a component
+     * method rather than a local of the `groups` binding — a nested function
+     * declaration inside a binding block crashes qmlls (Qt qmldom bug).
+     */
+    function coalesceInto(list, it) {
+        var last = list.length > 0 ? list[list.length - 1] : null;
+        if (last && last.n.summary === it.n.summary && last.n.body === it.n.body) {
+            last.count++;
+            last.items.push(it.n);
+        } else {
+            list.push({ live: it.live, n: it.n, count: 1, items: [it.n] });
+        }
     }
 
     function iconFor(n) {
