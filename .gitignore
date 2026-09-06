@@ -13,3 +13,6 @@
 !.vscode/tasks.json
 
 /.qmlls.ini
+
+# Docs are untracked for now — kept on disk, not in the repo.
+/docs/
