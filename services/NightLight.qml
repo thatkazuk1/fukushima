@@ -101,7 +101,7 @@ Singleton {
     }
 
     function notify(summary, body) {
-        notifyProc.command = ["notify-send", "-a", "Ukishima", summary, body];
+        notifyProc.command = ["notify-send", "-a", "Fukushima", summary, body];
         notifyProc.running = true;
     }
 

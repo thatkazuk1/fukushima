@@ -70,7 +70,7 @@ ShellRoot {
      */
     Process {
         running: Flags.keepAwake
-        command: ["systemd-inhibit", "--what=idle:sleep", "--who=Ukishima",
+        command: ["systemd-inhibit", "--what=idle:sleep", "--who=Fukushima",
                   "--why=keep awake", "--mode=block", "sleep", "infinity"]
     }
 

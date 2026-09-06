@@ -27,8 +27,8 @@ Singleton {
 
     function note(urgency, summary, body) {
         noteProc.command = urgency.length > 0
-            ? ["notify-send", "-a", "Ukishima", "-u", urgency, summary, body]
-            : ["notify-send", "-a", "Ukishima", summary, body];
+            ? ["notify-send", "-a", "Fukushima", "-u", urgency, summary, body]
+            : ["notify-send", "-a", "Fukushima", summary, body];
         noteProc.running = true;
     }
 
