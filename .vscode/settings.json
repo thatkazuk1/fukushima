@@ -1,24 +1,4 @@
 {
-  // ---------------------------------------------------------------------------
-  // QML language server (qmlls). Enabled, pointed at the system Qt 6 build.
-  //
-  //  * customExePath — the distro ships qmlls in /usr/lib/qt6/bin, off PATH.
-  //    Adjust for your machine:
-  //      dirname "$(find /usr/lib -name qmlls 2>/dev/null | head -1)"
-  //  * useNoCMakeCalls — this is not a CMake project; stop qmlls shelling out.
-  //  * doNotAskForQmllsDownload — don't nag to fetch the Qt Company build; the
-  //    system one is newer.
-  //
-  // Quickshell type resolution: when the shell runs with a `.qmlls.ini` present
-  // at the repo root, Quickshell mirrors the config tree into a VFS and rewrites
-  // `.qmlls.ini` to point qmlls at it — so our own singletons/components resolve
-  // under the `qs` module. A fresh clone has no `.qmlls.ini`; create the seed
-  // and reload once:  `touch .qmlls.ini && qs kill && hyprctl dispatch exec quickshell`
-  // The Quickshell *framework* types (PanelWindow, Process, Variants, …) are
-  // compiled into the binary with no on-disk type info and stay unresolved;
-  // `.qmllint.ini` mutes that family for both qmlls and `just lint`.
-  // See docs/DEVELOPMENT.md → "Editor setup".
-  // ---------------------------------------------------------------------------
   "qt-qml.qmlls.enabled": true,
   "qt-qml.qmlls.customExePath": "/usr/lib/qt6/bin/qmlls",
   "qt-qml.qmlls.useNoCMakeCalls": true,
@@ -32,7 +12,5 @@
     "editor.tabSize": 4,
     "editor.insertSpaces": true
   },
-  // qmlformat collapses the codebase's intentional manual wrapping, so never
-  // format QML on save. Use `just fmt-diff <file>` by hand instead.
   "editor.formatOnSave": false
 }
