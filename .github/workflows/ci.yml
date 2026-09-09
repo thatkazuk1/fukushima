@@ -13,27 +13,25 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - uses: extractions/setup-just@v2
       - run: just test
 
   lint:
     name: qmllint
     runs-on: ubuntu-24.04
-    # Advisory for now: the runner's Qt is older than the dev machine's, so the
+    # Advisory for now: the runner's Qt (6.4) trails the dev machine's, so the
     # warning set can differ. Promote to blocking once validated against a run.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: extractions/setup-just@v2
-      - name: Install Qt QML dev tools
+      # Only the qmllint binary is needed — .qmllint.ini disables the
+      # type-resolution family, so the QtQuick runtime QML modules add nothing
+      # (and qml6-module-qtquick-effects is not packaged for 24.04).
+      - name: Install qmllint
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            qt6-declarative-dev-tools \
-            qml6-module-qtquick \
-            qml6-module-qtquick-window \
-            qml6-module-qtquick-shapes \
-            qml6-module-qtquick-effects
+          sudo apt-get install -y --no-install-recommends qt6-declarative-dev-tools
           echo "/usr/lib/qt6/bin" >> "$GITHUB_PATH"
       - run: just lint
