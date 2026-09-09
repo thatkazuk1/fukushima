@@ -14,6 +14,7 @@ MinimizedTray MinimizedTray.qml
 Mixer Mixer.qml
 Power Power.qml
 Recorder Recorder.qml
+ScreenSurface ScreenSurface.qml
 SysmonSurface SysmonSurface.qml
 ThemeSurface ThemeSurface.qml
 Toast Toast.qml

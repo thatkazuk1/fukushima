@@ -65,6 +65,7 @@ Item {
     readonly property bool held: pinned || forcePinned
     readonly property bool mixerOpen: surface === "mixer"
     readonly property bool calendarOpen: surface === "calendar"
+    readonly property bool calendarAccountsOpen: surface === "calendarAccounts"
     readonly property bool launcherOpen: surface === "launcher"
     readonly property bool clipboardOpen: surface === "clipboard"
     readonly property bool wallpaperOpen: surface === "wallpaper"
@@ -77,13 +78,14 @@ Item {
     readonly property bool batteryOpen: surface === "battery"
     readonly property bool recorderOpen: surface === "recorder"
     readonly property bool sysmonOpen: surface === "sysmon"
+    readonly property bool screenOpen: surface === "screen"
     readonly property bool appearanceOpen: surface === "appearance"
     readonly property bool displayOpen: surface === "display"
     readonly property bool themeOpen: surface === "theme"
     readonly property bool interfaceOpen: surface === "interface"
     readonly property bool fontpickerOpen: surface === "fontpicker"
     readonly property bool updateOpen: surface === "update"
-    readonly property bool settingsLike: appearanceOpen || displayOpen || themeOpen || interfaceOpen || fontpickerOpen || updateOpen
+    readonly property bool settingsLike: appearanceOpen || displayOpen || themeOpen || interfaceOpen || fontpickerOpen || updateOpen || screenOpen || mixerOpen
     readonly property bool hasMedia: Players.list.length > 0
 
     readonly property var netDevices: (typeof Networking !== "undefined" && Networking && Networking.devices) ? Networking.devices.values : []
@@ -266,7 +268,6 @@ Item {
     readonly property real hoverPad: 20 * s
     readonly property real hoverW: hoverRow.implicitWidth + 2 * hoverPad
     readonly property real hoverH: 58 * s
-    readonly property real mixerH: 214 * s
     readonly property real launcherW: 360 * s
     readonly property real launcherH: 332 * s
     readonly property real clipboardW: 360 * s
@@ -326,19 +327,21 @@ Item {
      */
     readonly property var surfaces: ({
         calendar:  { size: () => { const it = surfaceItem(ldCalendar); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * s) + 36 * s, it.implicitHeight + 32 * s); }, ame: () => surfaceItem(ldCalendar) },
+        calendarAccounts: { size: () => Qt.size(settingsW, surfaceItem(ldCalendarAccounts).implicitHeight + 29 * s), ame: () => surfaceItem(ldCalendarAccounts) },
         weather:   { size: () => { const it = surfaceItem(ldWeather); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * s) + 36 * s, it.implicitHeight + 32 * s); }, ame: () => surfaceItem(ldWeather) },
         launcher:  { size: () => { surfaceItem(ldLauncher); return Qt.size(launcherW, launcherH); }, ame: () => surfaceItem(ldLauncher) },
         clipboard: { size: () => { surfaceItem(ldClip); return Qt.size(clipboardW, clipboardH); }, ame: () => surfaceItem(ldClip) },
         wallpaper: { size: () => { surfaceItem(ldWall); return Qt.size(wallpaperW, wallpaperH); }, ame: () => null },
         power:     { size: () => { surfaceItem(ldPower); return Qt.size(powerW, powerH); }, ame: () => surfaceItem(ldPower) },
         media:     { size: () => { surfaceItem(ldMedia); return Qt.size(mediaW, mediaH); }, ame: () => surfaceItem(ldMedia) },
-        mixer:     { size: () => Qt.size(93 * Math.max(4, surfaceItem(ldMixer).faderCount) * s, mixerH), ame: () => surfaceItem(ldMixer) },
+        mixer:     { size: () => Qt.size(settingsW, surfaceItem(ldMixer).implicitHeight + 29 * s), ame: () => surfaceItem(ldMixer) },
         link:      { size: () => { const it = surfaceItem(ldLink); return Qt.size(it.desiredW, it.implicitHeight + 26 * s); }, ame: () => surfaceItem(ldLink) },
         wifi:      { size: () => Qt.size(wifiW, surfaceItem(ldWifi).implicitHeight + 26 * s), ame: () => surfaceItem(ldWifi) },
         bt:        { size: () => Qt.size(btW, surfaceItem(ldBt).implicitHeight + 26 * s), ame: () => surfaceItem(ldBt) },
         battery:   { size: () => Qt.size(batteryW, surfaceItem(ldBattery).implicitHeight + 26 * s), ame: () => surfaceItem(ldBattery) },
         recorder:  { size: () => Qt.size(recorderW, surfaceItem(ldRecorder).implicitHeight + 33 * s), ame: () => surfaceItem(ldRecorder) },
         sysmon:    { size: () => Qt.size(sysmonW, surfaceItem(ldSysmon).implicitHeight + 33 * s), ame: () => surfaceItem(ldSysmon) },
+        screen:    { size: () => Qt.size(settingsW, surfaceItem(ldScreen).implicitHeight + 29 * s), ame: () => surfaceItem(ldScreen) },
         appearance: { size: () => Qt.size(settingsW, surfaceItem(ldAppearance).implicitHeight + 29 * s), ame: () => surfaceItem(ldAppearance) },
         display:    { size: () => Qt.size(settingsW, surfaceItem(ldDisplay).implicitHeight + 29 * s), ame: () => surfaceItem(ldDisplay) },
         theme:      { size: () => Qt.size(settingsW, surfaceItem(ldTheme).implicitHeight + 29 * s), ame: () => surfaceItem(ldTheme) },
@@ -355,6 +358,7 @@ Item {
      */
     readonly property var loaders: ({
         calendar:   () => ldCalendar,
+        calendarAccounts: () => ldCalendarAccounts,
         weather:    () => ldWeather,
         launcher:   () => ldLauncher,
         clipboard:  () => ldClip,
@@ -368,6 +372,7 @@ Item {
         battery:    () => ldBattery,
         recorder:   () => ldRecorder,
         sysmon:     () => ldSysmon,
+        screen:     () => ldScreen,
         appearance: () => ldAppearance,
         display:    () => ldDisplay,
         theme:      () => ldTheme,
@@ -425,23 +430,6 @@ Item {
     signal requestClose()
 
     /**
-     * Forward an arrow-key nudge to the open mixer's targeted fader. Returns true
-     * when the mixer is open and a fader consumed the step.
-     */
-    function mixerStep(deltaPct) {
-        return (pill.mixerOpen && ldMixer.item) ? ldMixer.item.stepFocused(deltaPct) : false;
-    }
-
-    /**
-     * Move the open mixer's keyboard focus across the fader row; `dir` is +1
-     * (right) or -1 (left). No-op unless the mixer is open.
-     */
-    function mixerFocusMove(dir) {
-        if (pill.mixerOpen && ldMixer.item)
-            ldMixer.item.moveFocus(dir);
-    }
-
-    /**
      * Forward an arrow-key nudge to the open recorder's focused audio fader.
      * Returns true when the recorder is open and a revealed fader consumed it.
      */
@@ -457,6 +445,10 @@ Item {
     function rowNavSurface() {
         if (pill.appearanceOpen)
             return ldAppearance.item;
+        if (pill.mixerOpen)
+            return ldMixer.item;
+        if (pill.screenOpen)
+            return ldScreen.item;
         if (pill.displayOpen)
             return ldDisplay.item;
         if (pill.themeOpen)
@@ -465,6 +457,8 @@ Item {
             return ldInterface.item;
         if (pill.fontpickerOpen)
             return ldFontpicker.item;
+        if (pill.updateOpen)
+            return ldUpdate.item;
         return null;
     }
 
@@ -506,13 +500,19 @@ Item {
 
     /**
      * Step the open surface back one level when its header bar is clicked: a
-     * settings sub-surface (display, theme, interface, font picker) returns to
-     * the appearance index, and the index or any other surface dismisses to the
-     * hover pill. Empty space in the body never triggers this.
+     * settings sub-surface returns to its `backSurface` (the appearance index),
+     * the calendar accounts sub-surface returns to the calendar, and a top-level
+     * surface dismisses to the hover pill. Empty space in the body never triggers
+     * this.
      */
     function surfaceBack() {
-        if (pill.displayOpen || pill.themeOpen || pill.interfaceOpen || pill.fontpickerOpen) {
-            pill.requestSurface("appearance");
+        var nav = pill.rowNavSurface();
+        if (nav && nav.backSurface.length > 0) {
+            pill.requestSurface(nav.backSurface);
+            return;
+        }
+        if (pill.calendarAccountsOpen) {
+            pill.requestSurface("calendar");
             return;
         }
         pill.requestClose();
@@ -937,6 +937,8 @@ Item {
             return recorderIcon.mapToItem(pill, recorderIcon.width / 2, recorderIcon.height + drop * 0.55);
         if (soulTarget === "sysmon")
             return sysmonIcon.mapToItem(pill, sysmonIcon.width / 2, sysmonIcon.height + drop * 0.55);
+        if (soulTarget === "display")
+            return displayIcon.mapToItem(pill, displayIcon.width / 2, displayIcon.height + drop * 0.55);
         if (soulTarget === "wallpaper")
             return wallpaperIcon.mapToItem(pill, wallpaperIcon.width / 2, wallpaperIcon.height + drop * 0.55);
         if (soulTarget === "clipboard")
@@ -1656,7 +1658,7 @@ Item {
 
                 Row {
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: pill.wifiDev !== null || pill.btAdapter !== null || Battery.present
+                    visible: pill.wifiDev !== null || pill.btAdapter !== null
                     spacing: 12 * pill.s
 
                     Item {
@@ -1728,73 +1730,6 @@ Item {
                             onContainsMouseChanged: if (containsMouse) pill.soulTarget = "bt"
                         }
                     }
-
-                    Item {
-                        id: batteryIcon
-                        anchors.verticalCenter: parent.verticalCenter
-                        visible: Battery.present
-                        width: battPct.implicitWidth
-                        height: 17 * pill.s
-
-                        Text {
-                            id: battPct
-                            anchors.centerIn: parent
-                            text: Battery.pct + "%"
-                            color: Battery.low ? Theme.vermLit : (Battery.charging ? Theme.flameGlow : Theme.subtle)
-                            font.family: Theme.font
-                            font.pixelSize: 13 * pill.s
-                            font.weight: Battery.charging ? Font.DemiBold : Font.Medium
-                            font.features: { "tnum": 1 }
-                        }
-
-                        MouseArea {
-                            id: batteryArea
-                            anchors.fill: parent
-                            anchors.margins: -6 * pill.s
-                            hoverEnabled: true
-                            enabled: hover.live
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: pill.requestSurface("battery")
-                            onContainsMouseChanged: if (containsMouse) pill.soulTarget = "battery"
-                        }
-                    }
-                }
-
-                Item {
-                    id: inboxIcon
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 17 * pill.s
-                    height: 17 * pill.s
-
-                    GlyphIcon {
-                        anchors.fill: parent
-                        name: "inbox"
-                        color: inboxArea.containsMouse ? Theme.cream : Theme.iconDim
-                        stroke: 1.7
-                    }
-
-                    Rectangle {
-                        visible: Notifs.unread > 0
-                        anchors.top: parent.top
-                        anchors.right: parent.right
-                        anchors.topMargin: -2 * pill.s
-                        anchors.rightMargin: -2 * pill.s
-                        width: 5 * pill.s
-                        height: 5 * pill.s
-                        radius: width / 2
-                        color: Theme.flameGlow
-                    }
-
-                    MouseArea {
-                        id: inboxArea
-                        anchors.fill: parent
-                        anchors.margins: -6 * pill.s
-                        hoverEnabled: true
-                        enabled: hover.live
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: pill.requestSurface("link")
-                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "inbox"
-                    }
                 }
 
                 Item {
@@ -1805,7 +1740,7 @@ Item {
 
                     GlyphIcon {
                         anchors.fill: parent
-                        name: "mixer"
+                        name: "speaker"
                         color: mixerArea.containsMouse ? Theme.cream : Theme.iconDim
                         stroke: 1.7
                     }
@@ -1823,7 +1758,7 @@ Item {
                 }
 
                 Item {
-                    id: sysmonIcon
+                    id: displayIcon
                     anchors.verticalCenter: parent.verticalCenter
                     width: 17 * pill.s
                     height: 17 * pill.s
@@ -1831,6 +1766,31 @@ Item {
                     GlyphIcon {
                         anchors.fill: parent
                         name: "monitor"
+                        color: displayArea.containsMouse ? Theme.cream : Theme.iconDim
+                        stroke: 1.7
+                    }
+
+                    MouseArea {
+                        id: displayArea
+                        anchors.fill: parent
+                        anchors.margins: -6 * pill.s
+                        hoverEnabled: true
+                        enabled: hover.live
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: pill.requestSurface("screen")
+                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "display"
+                    }
+                }
+
+                Item {
+                    id: sysmonIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 17 * pill.s
+                    height: 17 * pill.s
+
+                    GlyphIcon {
+                        anchors.fill: parent
+                        name: "gauge"
                         color: sysmonArea.containsMouse ? Theme.cream : Theme.iconDim
                         stroke: 1.7
                     }
@@ -2001,6 +1961,73 @@ Item {
                 }
 
                 Item {
+                    id: inboxIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 17 * pill.s
+                    height: 17 * pill.s
+
+                    GlyphIcon {
+                        anchors.fill: parent
+                        name: "inbox"
+                        color: inboxArea.containsMouse ? Theme.cream : Theme.iconDim
+                        stroke: 1.7
+                    }
+
+                    Rectangle {
+                        visible: Notifs.unread > 0
+                        anchors.top: parent.top
+                        anchors.right: parent.right
+                        anchors.topMargin: -2 * pill.s
+                        anchors.rightMargin: -2 * pill.s
+                        width: 5 * pill.s
+                        height: 5 * pill.s
+                        radius: width / 2
+                        color: Theme.flameGlow
+                    }
+
+                    MouseArea {
+                        id: inboxArea
+                        anchors.fill: parent
+                        anchors.margins: -6 * pill.s
+                        hoverEnabled: true
+                        enabled: hover.live
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: pill.requestSurface("link")
+                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "inbox"
+                    }
+                }
+
+                Item {
+                    id: batteryIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: Battery.present
+                    width: battPct.implicitWidth
+                    height: 17 * pill.s
+
+                    Text {
+                        id: battPct
+                        anchors.centerIn: parent
+                        text: Battery.pct + "%"
+                        color: Battery.low ? Theme.vermLit : (Battery.charging ? Theme.flameGlow : Theme.subtle)
+                        font.family: Theme.font
+                        font.pixelSize: 13 * pill.s
+                        font.weight: Battery.charging ? Font.DemiBold : Font.Medium
+                        font.features: { "tnum": 1 }
+                    }
+
+                    MouseArea {
+                        id: batteryArea
+                        anchors.fill: parent
+                        anchors.margins: -6 * pill.s
+                        hoverEnabled: true
+                        enabled: hover.live
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: pill.requestSurface("battery")
+                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "battery"
+                    }
+                }
+
+                Item {
                     id: powerIcon
                     anchors.verticalCenter: parent.verticalCenter
                     width: 17 * pill.s
@@ -2043,9 +2070,11 @@ Item {
         active: false
         anchors.fill: parent
         sourceComponent: Mixer {
-            s: pill.s
+            s: pill.s * pill.settingsScale
             open: pill.mixerOpen
             morphCloseness: pill.morphCloseness
+            onRequestClose: pill.requestClose()
+            onRequestSurface: (name) => pill.requestSurface(name)
         }
     }
 
@@ -2057,6 +2086,20 @@ Item {
             s: pill.s
             open: pill.calendarOpen
             morphCloseness: pill.morphCloseness
+            onRequestSurface: (name) => pill.requestSurface(name)
+        }
+    }
+
+    Loader {
+        id: ldCalendarAccounts
+        active: false
+        anchors.fill: parent
+        sourceComponent: CalendarAccounts {
+            s: pill.s * pill.settingsScale
+            open: pill.calendarAccountsOpen
+            morphCloseness: pill.morphCloseness
+            onRequestClose: pill.requestClose()
+            onRequestSurface: (name) => pill.requestSurface(name)
         }
     }
 
@@ -2202,6 +2245,19 @@ Item {
             open: pill.sysmonOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
+        }
+    }
+
+    Loader {
+        id: ldScreen
+        active: false
+        anchors.fill: parent
+        sourceComponent: ScreenSurface {
+            s: pill.s * pill.settingsScale
+            open: pill.screenOpen
+            morphCloseness: pill.morphCloseness
+            onRequestClose: pill.requestClose()
+            onRequestSurface: (name) => pill.requestSurface(name)
         }
     }
 

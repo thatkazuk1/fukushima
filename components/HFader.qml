@@ -2,10 +2,10 @@ import QtQuick
 import "../config"
 
 /**
- * Horizontal capture-level fader for the recorder's audio rows: a thin matte
- * track with a flame fill and a flat tick marker at the value, no knob. Mirrors
- * the mixer VFader look and contract (drag plus `step` for scroll-wheel and
- * arrow keys, 5% per notch) so the same focus and stepping logic drives it.
+ * Horizontal level fader: a thin matte track with a flame fill and a flat tick
+ * marker at the value, no knob. Used by the recorder's audio rows and by the
+ * SOUND / DISPLAY surfaces (via FaderRow). Drag plus `step` for scroll-wheel and
+ * arrow keys, 5% per notch, so one focus and stepping contract drives them all.
  * The host owns focus and feeds `focused`; `on` saturates the fill, off dims
  * it. Value is 0..1. A right-aligned percent readout trails the track.
  */

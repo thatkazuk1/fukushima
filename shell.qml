@@ -46,6 +46,9 @@ ShellRoot {
         void GameMode.active;
         void BatteryAlerts.armed;
         void UpdateToast.armed;
+        // Pin Gcal so its refresh timer runs and an in-progress account link
+        // survives the calendar surface unloading when the pill closes.
+        void Gcal.ready;
     }
 
     PanelWindow {
@@ -159,6 +162,7 @@ ShellRoot {
             }
         }
         function gameMode(mon: string): void { Flags.gameMode = !Flags.gameMode; }
+        function display(mon: string): void { root.toggleSurface(mon, "screen"); }
         function sysmon(mon: string): void { root.toggleSurface(mon, "sysmon"); }
         function system(mon: string): void { root.toggleSurface(mon, "sysmon"); }
         function clipboard(mon: string): void { root.toggleSurface(mon, "clipboard"); }
@@ -380,15 +384,14 @@ ShellRoot {
                 }
                 Keys.onUpPressed: (e) => {
                     if (pill.wallpaperMenuOpen) { pill.wallpaperMenuMove(-1); e.accepted = true; }
-                    else e.accepted = pill.mixerStep(1) || pill.recorderStep(5) || pill.settingsMove(-1);
+                    else e.accepted = pill.recorderStep(5) || pill.settingsMove(-1);
                 }
                 Keys.onDownPressed: (e) => {
                     if (pill.wallpaperMenuOpen) { pill.wallpaperMenuMove(1); e.accepted = true; }
-                    else e.accepted = pill.mixerStep(-1) || pill.recorderStep(-5) || pill.settingsMove(1);
+                    else e.accepted = pill.recorderStep(-5) || pill.settingsMove(1);
                 }
                 Keys.onLeftPressed: (e) => {
                     if (pill.wallpaperMenuOpen) { e.accepted = true; }
-                    else if (pill.mixerOpen) { pill.mixerFocusMove(-1); e.accepted = true; }
                     else if (pill.wallpaperOpen) { pill.wallpaperMove(-1); e.accepted = true; }
                     else if (pill.powerOpen) { pill.powerMove(-1); e.accepted = true; }
                     else if (pill.recorderOpen) { e.accepted = pill.recorderStep(-5); }
@@ -396,7 +399,6 @@ ShellRoot {
                 }
                 Keys.onRightPressed: (e) => {
                     if (pill.wallpaperMenuOpen) { e.accepted = true; }
-                    else if (pill.mixerOpen) { pill.mixerFocusMove(1); e.accepted = true; }
                     else if (pill.wallpaperOpen) { pill.wallpaperMove(1); e.accepted = true; }
                     else if (pill.powerOpen) { pill.powerMove(1); e.accepted = true; }
                     else if (pill.recorderOpen) { e.accepted = pill.recorderStep(5); }

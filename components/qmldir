@@ -10,13 +10,14 @@ MusicBars MusicBars.qml
 PillSurface PillSurface.qml
 SearchField SearchField.qml
 Dropdown Dropdown.qml
+FaderRow FaderRow.qml
+SectionLabel SectionLabel.qml
 SettingsHeader SettingsHeader.qml
 SettingsRow SettingsRow.qml
 SettingsSeg SettingsSeg.qml
 SettingsSurface SettingsSurface.qml
 Tooltip Tooltip.qml
 Tray Tray.qml
-VFader VFader.qml
 WheelScroller WheelScroller.qml
 WifiGlyph WifiGlyph.qml
 WifiQr WifiQr.qml

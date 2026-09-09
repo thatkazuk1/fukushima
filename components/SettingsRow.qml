@@ -20,6 +20,14 @@ Item {
     property string sub: ""
     property bool last: false
     property bool captionOnFocus: false
+
+    // Optional hover hint. `tip` is the bold line, `tipDesc` the faint one under
+    // it; empty `tip` disables the bubble. `tipPlacement` is "above" (default,
+    // safe for rows low in a surface) or "below".
+    property string tip: ""
+    property string tipDesc: ""
+    property string tipPlacement: "above"
+
     default property alias control: controlSlot.data
 
     readonly property real s: srow.surface ? srow.surface.s : 1
@@ -118,5 +126,13 @@ Item {
         height: 1
         color: Theme.hairSoft
         visible: !srow.last
+    }
+
+    Tooltip {
+        s: srow.s
+        placement: srow.tipPlacement
+        title: srow.tip
+        desc: srow.tipDesc
+        show: srowHover.hovered && srow.tip.length > 0
     }
 }

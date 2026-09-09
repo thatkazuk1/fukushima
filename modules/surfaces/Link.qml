@@ -374,6 +374,45 @@ PillSurface {
                         onClicked: Notifs.clearAll()
                     }
                 }
+
+                /**
+                 * Do-not-disturb toggle. Notifications are suppressed while it's
+                 * lit (Notifs gates the toast on Flags.dnd), so the control
+                 * belongs with the inbox rather than the sound surface. Pinned to
+                 * the header's right edge; the NEW badge and CLEAR reflow left.
+                 */
+                Item {
+                    id: dndToggle
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 13 * root.s
+                    height: 13 * root.s
+
+                    GlyphIcon {
+                        anchors.fill: parent
+                        name: "dnd"
+                        color: Flags.dnd ? Theme.vermLit
+                            : (dndArea.containsMouse ? Theme.subtle : Theme.faint)
+                        stroke: 1.8
+                    }
+
+                    MouseArea {
+                        id: dndArea
+                        anchors.fill: parent
+                        anchors.margins: -6 * root.s
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Flags.dnd = !Flags.dnd
+                    }
+
+                    Tooltip {
+                        s: root.s
+                        placement: "below"
+                        align: "right"
+                        title: Flags.dnd ? "Do not disturb — on" : "Do not disturb"
+                        desc: "Silence notifications"
+                        show: dndArea.containsMouse
+                    }
+                }
             }
         }
         Rectangle {
