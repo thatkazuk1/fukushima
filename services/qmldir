@@ -17,4 +17,4 @@ singleton Sysmon Sysmon.qml
 singleton UpdateToast UpdateToast.qml
 singleton Walls Walls.qml
 singleton Weather Weather.qml
-singleton Workspacerules Workspacerules.qml
+singleton WorkspaceRules WorkspaceRules.qml

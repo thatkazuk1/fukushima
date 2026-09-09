@@ -13,7 +13,7 @@ import "../services"
  * Clicking a dot focuses that workspace (Hyprland workspace dispatcher). Active
  * marker tracks the monitor's live active workspace name.
  *
- * The dot range unions this monitor's workspace rules ([[Workspacerules]]) with
+ * The dot range unions this monitor's workspace rules ([[WorkspaceRules]]) with
  * the workspaces Hyprland currently has on it, so a rule-driven setup (e.g.
  * monitors.lua splitting 1-5 / 6-10 across two screens) always shows every
  * assigned dot while a workspace outside the rules (r+1 past the last ruled
@@ -25,7 +25,7 @@ import "../services"
  * carry a null monitor, and `focusedWorkspace` is null — so the dots would
  * only appear after the first switch re-populates the models. A raw hyprctl
  * fetch is deterministic from the first frame and matches the pattern
- * [[Workspacerules]] already uses for the rule map.
+ * [[WorkspaceRules]] already uses for the rule map.
  */
 Item {
     id: workspaces
@@ -73,7 +73,7 @@ Item {
     function rebuild() {
         var out = [];
         var seen = ({});
-        var ruled = Workspacerules.byMonitor[screenName];
+        var ruled = WorkspaceRules.byMonitor[screenName];
         if (ruled && ruled.length) {
             for (var r = 0; r < ruled.length; r++) {
                 if (!seen[ruled[r]]) {
@@ -170,7 +170,7 @@ Item {
     }
 
     Connections {
-        target: Workspacerules
+        target: WorkspaceRules
         function onByMonitorChanged() { workspaces.rebuild() }
     }
 
