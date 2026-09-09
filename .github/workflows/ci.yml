@@ -19,19 +19,25 @@ jobs:
 
   lint:
     name: qmllint
-    runs-on: ubuntu-24.04
-    # Advisory for now: the runner's Qt (6.4) trails the dev machine's, so the
-    # warning set can differ. Promote to blocking once validated against a run.
+    # 26.04 ships Qt 6.10, matching the dev machine — 24.04's Qt 6.4 qmllint is
+    # too old to parse this project's .qmllint.ini or resolve QtQuick types.
+    runs-on: ubuntu-26.04
+    # Advisory while the 26.04 runner is in preview; promote to blocking once it
+    # has a few green runs behind it.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: extractions/setup-just@v2
-      # Only the qmllint binary is needed — .qmllint.ini disables the
-      # type-resolution family, so the QtQuick runtime QML modules add nothing
-      # (and qml6-module-qtquick-effects is not packaged for 24.04).
-      - name: Install qmllint
+      - name: Install Qt QML tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends qt6-declarative-dev-tools
+          sudo apt-get install -y --no-install-recommends \
+            qt6-declarative-dev-tools \
+            qml6-module-qtquick \
+            qml6-module-qtquick-controls \
+            qml6-module-qtquick-effects \
+            qml6-module-qtquick-layouts \
+            qml6-module-qtquick-shapes \
+            qml6-module-qtmultimedia
           echo "/usr/lib/qt6/bin" >> "$GITHUB_PATH"
       - run: just lint
