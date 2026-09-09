@@ -46,6 +46,7 @@ Singleton {
     property alias idleScreenOffMin: adapter.idleScreenOffMin
     property alias idleSuspendMin: adapter.idleSuspendMin
     property alias weatherCity: adapter.weatherCity
+    property alias gcalEnabled: adapter.gcalEnabled
     property alias musicViz: adapter.musicViz
     property alias gameMode: adapter.gameMode
     property alias gamePrevDnd: adapter.gamePrevDnd
@@ -112,6 +113,8 @@ Singleton {
             property int idleScreenOffMin: 6
             property int idleSuspendMin: 0
             property string weatherCity: ""
+            /** Master switch for the Google Calendar merge in the calendar surface. Connected accounts and their tokens live in ~/.local/state/fukushima/gcal/; this only hides or shows their events. */
+            property bool gcalEnabled: true
             property bool musicViz: true
             property bool gameMode: false
             property bool gamePrevDnd: false

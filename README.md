@@ -41,6 +41,7 @@ This is a fork of amanhex's **Ukishima** (浮島, *"floating island"*) — the n
 - **Wallpaper system** — `awww` backend with a shuffled bag, per-monitor assignment, animated transitions, live wallpapers (`mpvpaper`), a per-wallpaper fit control (Cover / Contain / Stretch / Center) that rescales the screen in place, and a live palette that retints the whole UI plus the terminal on every change; an online [Wallhaven](https://wallhaven.cc) browse/search with pagination, Hot / Latest / Top / Random / Top Liked sorting, and memory-only thumbnails (nothing cached to disk).
 - **Screen recorder** — `gpu-screen-recorder` with slurp window/region picking, countdown, quality presets, audio, and a recent-clips filmstrip.
 - **Weather** — Open-Meteo current conditions, hourly and five-day forecast in a dedicated surface, with an editable location (falls back to IP auto-detection).
+- **Google Calendar** — link one or more Google accounts (read-only) from the calendar's Calendars sub-surface; every calendar in each account is merged into the month grid and day list beside your local events. OAuth tokens stay in `~/.local/state/fukushima/gcal/` (0600). One-time client setup: [`docs/GCAL-SETUP.md`](docs/GCAL-SETUP.md).
 - **Extras** — night light (hyprsunset), clipboard manager (cliphist), music visualiser (cava), game mode, quick-record keybind, keep-awake, and an in-app updater that pulls the latest release from GitHub.
 
 ## Preview
@@ -113,6 +114,7 @@ the pure-JS logic tests on every push.
 - **[Open-Meteo](https://open-meteo.com)** — weather forecast (no API key; IP geolocation fallback via their companion service).
 - **[Wallhaven](https://wallhaven.cc)** — the online wallpaper browse/search. Thumbnails are streamed from Wallhaven's CDN straight to QML and never touch disk.
 - **GitHub** — the in-app updater pulls the latest commit of this repo.
+- **[Google Calendar API](https://developers.google.com/calendar)** — optional, read-only. Bring your own OAuth client (see [`docs/GCAL-SETUP.md`](docs/GCAL-SETUP.md)); events are fetched by `scripts/gcal.py` and never leave your machine.
 
 ## Installation & Development
 
@@ -188,7 +190,7 @@ There is no automated UI test (it would need a live compositor). After a behavio
 
 ### State & Cache
 
-- **state:** `$XDG_STATE_HOME/fukushima` (default `~/.local/state/fukushima`) — flags, events, gamemode snapshot; the wallpaper selection lives in sibling `~/.local/state/fukushima-wallpaper*` files.
+- **state:** `$XDG_STATE_HOME/fukushima` (default `~/.local/state/fukushima`) — flags, events, gamemode snapshot, and Google Calendar OAuth tokens under `gcal/` (0600); the wallpaper selection lives in sibling `~/.local/state/fukushima-wallpaper*` files.
 - **cache:** `$XDG_CACHE_HOME/fukushima` (default `~/.cache/fukushima`) — palette JSON and record thumbnails; wallpaper previews under `fukushima-wp-thumbs/`, clipboard previews under `cliphist-thumbs/`, weather location under `pill/`.
 
 ### Uninstalling

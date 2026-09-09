@@ -2,6 +2,7 @@ Appearance Appearance.qml
 BatterySurface BatterySurface.qml
 BtSurface BtSurface.qml
 Calendar Calendar.qml
+CalendarAccounts CalendarAccounts.qml
 Clipboard Clipboard.qml
 DisplaySurface DisplaySurface.qml
 FontPicker FontPicker.qml

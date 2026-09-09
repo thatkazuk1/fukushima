@@ -6,6 +6,7 @@ import Quickshell
 import "../../config"
 import "../../services"
 import "../../components"
+import "../../lib/gcal.js" as GcalLib
 
 /**
  * Calendar surface: the month grid and an event editor that grows out to the
@@ -30,6 +31,8 @@ PillSurface {
     mLeft: 18
     mRight: 18
     mBottom: 16
+
+    signal requestSurface(string name)
 
     readonly property var loc: Qt.locale("en_US")
 
@@ -270,6 +273,36 @@ PillSurface {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 2 * root.s
 
+                Rectangle {
+                    id: acctBtn
+                    width: 22 * root.s
+                    height: 22 * root.s
+                    radius: Motion.rSmall * root.s
+                    color: acctArea.containsMouse ? Theme.frameBg : "transparent"
+                    border.width: acctArea.containsMouse ? 1 : 0
+                    border.color: Theme.frameBorder
+
+                    GlyphIcon {
+                        anchors.centerIn: parent
+                        width: 15 * root.s
+                        height: 15 * root.s
+                        name: "layers"
+                        color: acctArea.containsMouse ? Theme.cream
+                            : (Gcal.accounts.length > 0 ? Theme.flameGlow : Theme.iconDim)
+                        stroke: 1.7
+                    }
+
+                    MouseArea {
+                        id: acctArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.requestSurface("calendarAccounts")
+                    }
+                }
+
+                Item { width: 4 * root.s; height: 1 }
+
                 Repeater {
                     model: [-1, 1]
 
@@ -368,7 +401,8 @@ PillSurface {
                     readonly property bool inMonth: dayNum >= 1 && dayNum <= root.monthLen
                     readonly property bool current: inMonth && root.isToday(dayNum)
                     readonly property string dayKey: inMonth ? root.dateKey(dayNum) : ""
-                    readonly property bool hasEvent: inMonth && Events.hasEvents(cell.dayKey)
+                    readonly property bool hasEvent: inMonth
+                        && (Events.hasEvents(cell.dayKey) || Gcal.hasEvents(cell.dayKey))
                     readonly property bool sel: inMonth && root.inRange(cell.dayKey)
                     readonly property bool selEdge: cell.sel
                         && (cell.dayKey === root.rangeLo || cell.dayKey === root.rangeHi)
@@ -488,9 +522,20 @@ PillSurface {
         opacity: root.editorShown ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
 
-        /** Events covering the picked day (a span's start), empty until a day is picked. */
-        readonly property var dayEvents: root.selectedDate.length > 0
-            ? Events.forDate(root.selectedDate) : []
+        /**
+         * Events covering the picked day (a span's start), empty until a day is
+         * picked. Local entries first, then the read-only Google ones, the whole
+         * list re-sorted by start time (an empty all-day time sorts first) so the
+         * two sources interleave the same way a single source would.
+         */
+        readonly property var dayEvents: {
+            if (root.selectedDate.length === 0)
+                return [];
+            var merged = Events.forDate(root.selectedDate)
+                .concat(Gcal.forDate(root.selectedDate));
+            merged.sort(GcalLib.byStartTime);
+            return merged;
+        }
 
         /** Single day reads "Mon 9 Jun"; a span reads its range. */
         readonly property string heading: {
@@ -621,8 +666,13 @@ PillSurface {
                                 radius: Motion.rSmall * root.s
                                 color: evArea.hovered ? Theme.frameBg : "transparent"
 
-                                /** "all day" or "09:00–10:00", a date span when multi-day, "every year" when recurring. */
+                                /** A Google event (read-only): carries an `account`, no delete tap. */
+                                readonly property bool isRemote: !!evRow.modelData.account
+
+                                /** "all day" or "09:00–10:00", a date span when multi-day, "every year" when recurring; a Google entry trails its source calendar (see lib/gcal.js). */
                                 readonly property string meta: {
+                                    if (evRow.isRemote)
+                                        return GcalLib.meta(evRow.modelData, root.fmtSpan);
                                     var datePart = "";
                                     if (evRow.modelData.endDate && evRow.modelData.endDate.length > 0)
                                         datePart = root.fmtSpan(evRow.modelData.date, evRow.modelData.endDate);
@@ -632,8 +682,8 @@ PillSurface {
                                         : (e.length > 0 ? t + "–" + e : t);
                                     var base = datePart.length > 0 ? datePart + " · " + timePart : timePart;
                                     var r = evRow.modelData.recur;
-                                    if (r === "year") return "every year · " + base;
-                                    if (r === "month") return "every month · " + base;
+                                    if (r === "year") base = "every year · " + base;
+                                    else if (r === "month") base = "every month · " + base;
                                     return base;
                                 }
 
@@ -679,8 +729,9 @@ PillSurface {
                                     anchors.rightMargin: 7 * root.s
                                     anchors.top: parent.top
                                     anchors.topMargin: 7 * root.s
-                                    width: 16 * root.s
+                                    width: evRow.isRemote ? 0 : 16 * root.s
                                     height: 16 * root.s
+                                    visible: !evRow.isRemote
                                     opacity: evArea.hovered ? 1 : 0.32
                                     Behavior on opacity { NumberAnimation { duration: Motion.fast } }
 

@@ -7,6 +7,7 @@ singleton Devices Devices.qml
 singleton Dyn Dyn.qml
 singleton Events Events.qml
 singleton GameMode GameMode.qml
+singleton Gcal Gcal.qml
 singleton NetInfo NetInfo.qml
 singleton NightLight NightLight.qml
 singleton Notifs Notifs.qml
