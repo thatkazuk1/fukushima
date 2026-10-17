@@ -158,18 +158,79 @@ Singleton {
      */
     property string queuedApply: ""
     property string queuedOutput: ""
+    // Set right before the watchdog force-closes a wedged run, so the real
+    // onExited() that eventually follows (the killed process still has to be
+    // reaped) sees its work already done and skips a second, racing restart.
+    property bool applyTimedOut: false
 
     function apply(path, output) {
         var out = output === undefined ? "" : output;
         if (applyProc.running) {
+            // Don't restart the watchdog here — it's timing the run already in
+            // flight, not this queued pick, so repeated clicks on a genuinely
+            // wedged run can't push its deadline out forever.
             queuedApply = path;
             queuedOutput = out;
             return;
         }
+        root.runApply(path, out);
+    }
+
+    function runApply(path, out) {
+        applyTimedOut = false;
         applyProc.command = out.length > 0
             ? ["bash", root.setScript, "set", path, out]
             : ["bash", root.setScript, "set", path];
         applyProc.running = true;
+        applyWatchdog.restart();
+    }
+
+    /**
+     * wallpaper.sh finishes in ~1-2s (worst case ~15-20s if awww-daemon needs
+     * restarting first). If applyProc is still "running" well past that, the
+     * Process object itself is wedged rather than the script actually hung —
+     * seen after a live QML reload lands mid-transition and orphans the old
+     * Process state, with applyProc.running left permanently true and no real
+     * process behind it. Without this, every future pick just piles up in
+     * queuedApply forever, reading as the picker "not responding" — force the
+     * stuck run closed and advance the queue directly, same as a real exit.
+     */
+    Timer {
+        id: applyWatchdog
+        interval: 30000
+        onTriggered: {
+            if (!applyProc.running)
+                return;
+            console.warn("Walls: apply watchdog fired — forcing a wedged run closed");
+            // If this wasn't actually wedged, killing it still delivers a real
+            // exited() a moment later; the flag makes that a no-op instead of
+            // a second, racing advance of the queue.
+            applyTimedOut = true;
+            applyProc.running = false;
+            root.advanceApplyQueue();
+        }
+    }
+
+    /** applyProc.onExited only — the watchdog advances the queue itself. */
+    function onApplyExited() {
+        if (applyTimedOut) {
+            applyTimedOut = false;
+            return;
+        }
+        applyWatchdog.stop();
+        root.advanceApplyQueue();
+    }
+
+    function advanceApplyQueue() {
+        if (root.queuedApply.length) {
+            var next = root.queuedApply;
+            var nextOut = root.queuedOutput;
+            root.queuedApply = "";
+            root.queuedOutput = "";
+            root.runApply(next, nextOut);
+            return;
+        }
+        stateProc.running = true;
     }
 
     function trash(path) {
@@ -249,20 +310,7 @@ Singleton {
 
     Process {
         id: applyProc
-        onExited: {
-            if (root.queuedApply.length) {
-                var next = root.queuedApply;
-                var nextOut = root.queuedOutput;
-                root.queuedApply = "";
-                root.queuedOutput = "";
-                applyProc.command = nextOut.length > 0
-                    ? ["bash", root.setScript, "set", next, nextOut]
-                    : ["bash", root.setScript, "set", next];
-                applyProc.running = true;
-                return;
-            }
-            stateProc.running = true;
-        }
+        onExited: root.onApplyExited()
     }
 
     /**
