@@ -1770,7 +1770,7 @@ Item {
 
                     GlyphIcon {
                         anchors.fill: parent
-                        name: "monitor"
+                        name: "display"
                         color: displayArea.containsMouse ? Theme.cream : Theme.iconDim
                         stroke: 1.7
                     }
