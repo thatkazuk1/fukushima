@@ -90,12 +90,19 @@ Item {
 
     readonly property var netDevices: (typeof Networking !== "undefined" && Networking && Networking.devices) ? Networking.devices.values : []
     readonly property var wifiDev: netDevices.find(function(d) { return d && d.type === DeviceType.Wifi }) || null
-    readonly property bool wifiOn: (typeof Networking !== "undefined" && Networking) ? Networking.wifiEnabled : false
+    // Radios reads the real state; Quickshell's own copy goes stale after a
+    // NetworkManager or bluetoothd restart (see services/Radios.qml).
+    readonly property bool wifiPresent: wifiDev !== null || Radios.wifi === "on" || Radios.wifi === "off"
+    readonly property bool wifiOn: Radios.wifi !== "" ? Radios.wifi === "on"
+        : ((typeof Networking !== "undefined" && Networking) ? Networking.wifiEnabled : false)
     readonly property var wifiNets: (wifiDev && wifiDev.networks) ? wifiDev.networks.values : []
     readonly property var wifiActive: wifiNets.find(function(n) { return n && n.connected }) || null
-    readonly property real wifiLevel: (wifiActive && wifiActive.signalStrength) || 0
+    readonly property real wifiLevel: (wifiActive && wifiActive.signalStrength)
+        || (Radios.wifiSignal > 0 ? Radios.wifiSignal : 0)
     readonly property var btAdapter: (typeof Bluetooth !== "undefined" && Bluetooth) ? Bluetooth.defaultAdapter : null
-    readonly property bool btOn: btAdapter ? btAdapter.enabled === true : false
+    readonly property bool btPresent: btAdapter !== null || Radios.bt === "on" || Radios.bt === "off"
+    readonly property bool btOn: Radios.bt !== "" ? Radios.bt === "on"
+        : (btAdapter ? btAdapter.enabled === true : false)
     readonly property bool surfaceOpen: surface.length > 0
     property bool hoverLatch: false
 
@@ -1658,13 +1665,13 @@ Item {
 
                 Row {
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: pill.wifiDev !== null || pill.btAdapter !== null
+                    visible: pill.wifiPresent || pill.btPresent
                     spacing: 12 * pill.s
 
                     Item {
                         id: wifiIcon
                         anchors.verticalCenter: parent.verticalCenter
-                        visible: pill.wifiDev !== null
+                        visible: pill.wifiPresent
                         width: 15 * pill.s
                         height: 15 * pill.s
 
@@ -1686,8 +1693,7 @@ Item {
                             cursorShape: Qt.PointingHandCursor
                             onClicked: (e) => {
                                 if (e.button === Qt.RightButton) {
-                                    if (typeof Networking !== "undefined" && Networking)
-                                        Networking.wifiEnabled = !Networking.wifiEnabled;
+                                    Radios.toggleWifi();
                                     return;
                                 }
                                 pill.requestSurface("wifi");
@@ -1699,7 +1705,7 @@ Item {
                     Item {
                         id: btIcon
                         anchors.verticalCenter: parent.verticalCenter
-                        visible: pill.btAdapter !== null
+                        visible: pill.btPresent
                         width: 15 * pill.s
                         height: 15 * pill.s
 
@@ -1721,8 +1727,7 @@ Item {
                             cursorShape: Qt.PointingHandCursor
                             onClicked: (e) => {
                                 if (e.button === Qt.RightButton) {
-                                    if (pill.btAdapter)
-                                        pill.btAdapter.enabled = !pill.btAdapter.enabled;
+                                    Radios.toggleBt();
                                     return;
                                 }
                                 pill.requestSurface("bt");

@@ -12,6 +12,7 @@ singleton NetInfo NetInfo.qml
 singleton NightLight NightLight.qml
 singleton Notifs Notifs.qml
 singleton Players Players.qml
+singleton Radios Radios.qml
 singleton ScreenRec ScreenRec.qml
 singleton Spaces Spaces.qml
 singleton Sysmon Sysmon.qml
