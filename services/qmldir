@@ -20,4 +20,5 @@ singleton UpdateToast UpdateToast.qml
 singleton Usage Usage.qml
 singleton Walls Walls.qml
 singleton Weather Weather.qml
+singleton WindowGuard WindowGuard.qml
 singleton WorkspaceRules WorkspaceRules.qml

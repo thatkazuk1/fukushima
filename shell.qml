@@ -48,6 +48,7 @@ ShellRoot {
         void BatteryAlerts.armed;
         void UpdateToast.armed;
         void Usage.armed;
+        void WindowGuard.armed;
         // Pin Gcal so its refresh timer runs and an in-progress account link
         // survives the calendar surface unloading when the pill closes.
         void Gcal.ready;
