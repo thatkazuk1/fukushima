@@ -9,6 +9,7 @@ import "config"
 import "services"
 import "modules/pill"
 import "modules/osd"
+import "modules/polkit"
 
 /**
  * Fukushima top shell. Each monitor carries two layer-shell windows:
@@ -50,6 +51,9 @@ ShellRoot {
         // survives the calendar surface unloading when the pill closes.
         void Gcal.ready;
     }
+
+    /** Own polkit agent, so the password prompt matches the pill. */
+    AuthDialog {}
 
     PanelWindow {
         id: inhibitWin
