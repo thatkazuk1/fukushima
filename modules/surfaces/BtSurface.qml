@@ -41,6 +41,10 @@ PillSurface {
         if (r !== 0) return r;
         return String((a && a.name) || "").localeCompare(String((b && b.name) || ""));
     })
+    // Radios reads the real adapter power. Quickshell's adapter.enabled can read
+    // false while the adapter is on (see services/Radios.qml).
+    readonly property bool powered: Radios.bt !== "" ? Radios.bt === "on"
+        : (adapter ? adapter.enabled === true : false)
     readonly property bool discovering: adapter ? adapter.discovering === true : false
 
     property string pairingAddress: ""
@@ -131,34 +135,9 @@ PillSurface {
             d.forget();
     }
 
-    /**
-     * Turns the adapter on or off. BlueZ rejects the enable call outright while
-     * RFKILL soft-blocks the controller (the off-blocked state), so first drop
-     * the rfkill block and only then ask BlueZ to power on.
-     */
+    /** Turns the adapter on or off. Radios drops an rfkill block first when it powers on. */
     function toggleAdapter() {
-        if (!root.adapter)
-            return;
-        if (root.adapter.enabled) {
-            root.adapter.enabled = false;
-            return;
-        }
-        if (typeof BluetoothAdapterState !== "undefined"
-                && root.adapter.state === BluetoothAdapterState.Blocked) {
-            rfkillProc.command = ["rfkill", "unblock", "bluetooth"];
-            rfkillProc.running = true;
-        } else {
-            root.adapter.enabled = true;
-        }
-    }
-
-    Process {
-        id: rfkillProc
-        stdout: StdioCollector {}
-        stderr: StdioCollector {}
-        onExited: function() {
-            root.adapter.enabled = true;
-        }
+        Radios.toggleBt();
     }
 
     function pairDevice(d) {
@@ -174,7 +153,7 @@ PillSurface {
 
     onActiveChanged: {
         if (active) {
-            if (adapter && adapter.enabled) {
+            if (adapter && root.powered) {
                 adapter.discovering = true;
                 scanTimer.restart();
             }
@@ -254,7 +233,7 @@ PillSurface {
 
             Text {
                 anchors.verticalCenter: parent.verticalCenter
-                visible: root.adapter ? root.adapter.enabled === true : false
+                visible: root.adapter !== null && root.powered
                 text: root.discovering ? "Scanning…" : "Scan"
                 color: root.discovering ? Theme.vermLit : Theme.dim
                 font.family: Theme.font
@@ -280,7 +259,7 @@ PillSurface {
             LinkToggle {
                 s: root.s
                 anchors.verticalCenter: parent.verticalCenter
-                on: root.adapter ? root.adapter.enabled === true : false
+                on: root.powered
                 onToggled: root.toggleAdapter()
             }
         }

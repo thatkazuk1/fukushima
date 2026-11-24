@@ -44,7 +44,10 @@ Singleton {
     function toggleBt() {
         if (setProc.running || bt === "" || bt === "none")
             return;
-        setProc.command = ["bluetoothctl", "power", bt === "on" ? "off" : "on"];
+        // BlueZ rejects power on while rfkill soft-blocks the controller, so unblock first.
+        setProc.command = bt === "on"
+            ? ["bluetoothctl", "power", "off"]
+            : ["sh", "-c", "rfkill unblock bluetooth; bluetoothctl power on"];
         setProc.running = true;
     }
 

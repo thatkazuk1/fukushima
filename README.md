@@ -88,6 +88,7 @@ Actively developed. CI runs the pure-JS logic tests and `qmllint` on each push t
 | `hyprctl` | Hyprland IPC (workspaces, monitors, dispatch, reload) |
 | `upower` | battery status and charge reporting (design capacity + cycle count read from `/sys/class/power_supply`) |
 | `bluez` (`bluetoothctl`) | bluetooth surface |
+| `rfkill` | removes a Bluetooth soft block before power on |
 | `jq` | JSON parsing in the helper scripts |
 | `magick` (ImageMagick) | wallpaper thumbnails and palette |
 | `awww` + `awww-daemon` | wallpaper backend |
