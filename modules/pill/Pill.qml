@@ -1685,6 +1685,32 @@ Item {
                     }
                 }
 
+                Item {
+                    id: usageIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: Usage.hasData
+                    width: usageGlyph.implicitWidth
+                    height: 17 * pill.s
+
+                    UsageGlyph {
+                        id: usageGlyph
+                        anchors.centerIn: parent
+                        s: pill.s
+                        bright: usageArea.containsMouse
+                    }
+
+                    MouseArea {
+                        id: usageArea
+                        anchors.fill: parent
+                        anchors.margins: -6 * pill.s
+                        hoverEnabled: true
+                        enabled: hover.live
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: pill.requestSurface("usage")
+                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "usage"
+                    }
+                }
+
                 Row {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: pill.wifiPresent || pill.btPresent
@@ -1984,32 +2010,6 @@ Item {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: pill.requestSurface("appearance")
                         onContainsMouseChanged: if (containsMouse) pill.soulTarget = "appearance"
-                    }
-                }
-
-                Item {
-                    id: usageIcon
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: Usage.hasData
-                    width: usageGlyph.implicitWidth
-                    height: 17 * pill.s
-
-                    UsageGlyph {
-                        id: usageGlyph
-                        anchors.centerIn: parent
-                        s: pill.s
-                        bright: usageArea.containsMouse
-                    }
-
-                    MouseArea {
-                        id: usageArea
-                        anchors.fill: parent
-                        anchors.margins: -6 * pill.s
-                        hoverEnabled: true
-                        enabled: hover.live
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: pill.requestSurface("usage")
-                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "usage"
                     }
                 }
 
