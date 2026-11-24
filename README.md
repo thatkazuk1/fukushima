@@ -15,6 +15,10 @@ A dynamic-island [Quickshell](https://quickshell.outfoxxed.me) shell for Hyprlan
 - [Installation & Development](#installation--development)
   - [Setting Up](#setting-up)
   - [Keybinds](#keybinds)
+  - [Polkit Agent](#polkit-agent)
+  - [Themes for Other Apps](#themes-for-other-apps)
+  - [Usage Notch](#usage-notch)
+  - [Google Calendar](#google-calendar)
   - [Development](#development)
   - [Testing](#testing)
   - [State & Cache](#state--cache)
@@ -23,26 +27,39 @@ A dynamic-island [Quickshell](https://quickshell.outfoxxed.me) shell for Hyprlan
 - [Contributing](#contributing)
 - [Acknowledgements](#acknowledgements)
 - [Authors](#authors)
-  - [Repo Activity](#repo-activity)
 
 ## About the Project
 
-Fukushima (福島) is a widget layer for Hyprland built around a single morphing pill at the top of every monitor. Collapsed, it is a thin warm-vermillion strip; hover it and it expands in place into a control centre — workspace dots, clock, media, system readouts — and every module grows its own surface out of the pill itself. Nothing ever pops up as a separate panel.
+Fukushima (福島) is a widget layer for Hyprland. A single morphing pill sits at the top of every monitor. Hover the pill and it expands into a control centre with the clock, media and system readouts. Each module grows its own surface out of the pill. The password prompt is the one separate window.
 
-The project is fully self-contained. It makes no changes to existing Hyprland config files; the auto-launch line and the keybinds are the only things you add yourself.
+The installer does not change your Hyprland config. You add the auto-launch line and the keybinds yourself. The optional [themes for other apps](#themes-for-other-apps) do change files in `~/.config`.
 
 This is a fork of amanhex's **Ukishima** (浮島, *"floating island"*) — the name keeps the *-shima*. See [Acknowledgements](#acknowledgements) for the full lineage.
 
 ## Features
 
-- **Dynamic island** — one morphing pill per monitor, expanding in place with a bead cursor and smooth morph animations. Four collapsed faces (minimal / classic / system / strip).
-- **Surfaces** grown from the pill: launcher, weather, calendar, media, mixer, wallpaper strip + online search, screen recorder, clipboard history, wifi, bluetooth, battery, power menu, system monitor, notification centre, minimized-window stash, OSD, toasts, and a settings hub (appearance → display, theme, font, interface, update).
-- **Network panel** — the wifi surface carries a live vitals grid (ping / packet loss, receive + send rates, session totals, IP / gateway), a Wi-Fi band selector with an automatic mode, QR sharing, and an inline speed test, over the signal-sorted Known / Other network list with its connect / forget / show-password flow.
-- **Wallpaper system** — `awww` backend with a shuffled bag, per-monitor assignment, animated transitions, live wallpapers (`mpvpaper`), a per-wallpaper fit control (Cover / Contain / Stretch / Center) that rescales the screen in place, and a live palette that retints the whole UI plus the terminal on every change; an online [Wallhaven](https://wallhaven.cc) browse/search with pagination, Hot / Latest / Top / Random / Top Liked sorting, and memory-only thumbnails (nothing cached to disk).
-- **Screen recorder** — `gpu-screen-recorder` with slurp window/region picking, countdown, quality presets, audio, and a recent-clips filmstrip.
-- **Weather** — Open-Meteo current conditions, hourly and five-day forecast in a dedicated surface, with an editable location (falls back to IP auto-detection).
-- **Google Calendar** — link one or more Google accounts (read-only) from the calendar's Calendars sub-surface; every calendar in each account is merged into the month grid and day list beside your local events. OAuth tokens stay in `~/.local/state/fukushima/gcal/` (0600). One-time client setup: [`docs/GCAL-SETUP.md`](docs/GCAL-SETUP.md).
-- **Extras** — night light (hyprsunset), clipboard manager (cliphist), music visualiser (cava), game mode, quick-record keybind, keep-awake, and an in-app updater that pulls the latest release from GitHub.
+### The pill
+
+- **Dynamic island:** one morphing pill for each monitor, with a bead cursor and smooth morph animations.
+- **Four collapsed faces:** minimal, classic, system and strip.
+- **Surfaces:** launcher, calendar, weather, media, sound, screen, wallpaper picker, screen recorder, clipboard history, wifi, bluetooth, battery, power menu, system monitor, usage limits, notification inbox, minimized-window stash, OSD and toasts.
+- **Settings hub:** Appearance holds the display, theme, font, interface and update pages.
+
+### Modules
+
+- **LLM usage notch:** ring gauges for the Codex, Claude and Antigravity limits, with the time until each reset. It warns at 80, 95 and 100 percent. It needs [a separate collector](#usage-notch).
+- **Polkit agent:** the password prompt uses the pill palette and font. See [Polkit Agent](#polkit-agent).
+- **Network panel:** live vitals (ping, packet loss, transfer rates, session totals, IP and gateway), a Wi-Fi band selector, QR sharing, a speed test, and the Known and Other network lists.
+- **Wallpaper system:** the `awww` backend with a shuffled bag, per-monitor assignment, transitions, video wallpapers (`mpvpaper`) and a fit control. It includes [Wallhaven](https://wallhaven.cc) search with sorting and pagination. Online thumbnails stay in memory.
+- **Palettes:** fixed light and dark palettes, a palette from the wallpaper, or a manual hue. A wallpaper change or a manual hue also updates the `ghostty` and `fastfetch` colours.
+- **Screen recorder:** `gpu-screen-recorder` with a window or region picker, countdown, quality presets, audio and a strip of recent clips.
+- **Weather:** Open-Meteo current, hourly and five-day forecast. You can set the location, or the shell finds it from your IP address.
+- **Google Calendar:** read-only events from one or more accounts, beside your local events. See [Google Calendar](#google-calendar).
+- **Extras:** night light, music visualiser, game mode, quick-record keybind, keep-awake and an in-app updater.
+
+### Matching themes
+
+Optional dark themes for GTK3, GTK4, Qt5, Qt6, kitty and wofi. See [Themes for Other Apps](#themes-for-other-apps).
 
 ## Preview
 
@@ -57,10 +74,7 @@ fork and will be refreshed once it diverges visually.
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 [![CI](https://github.com/thatkazuk1/fukushima/actions/workflows/ci.yml/badge.svg)](https://github.com/thatkazuk1/fukushima/actions/workflows/ci.yml)
 
-Actively developed. The current focus is a structured engineering pass over the
-forked codebase — a proper dev environment (done), a behaviour-preserving
-refactor of the surface architecture, then new features. CI runs `qmllint` and
-the pure-JS logic tests on every push.
+Actively developed. CI runs the pure-JS logic tests and `qmllint` on each push to `master` and on each pull request. The lint job is advisory.
 
 ## Getting Started
 
@@ -79,9 +93,13 @@ the pure-JS logic tests on every push.
 | `awww` + `awww-daemon` | wallpaper backend |
 | `ffmpeg` | video-wallpaper still extraction |
 | `nmcli` (NetworkManager) | wifi surface, band selector |
+| `notify-send` (libnotify) | battery and usage warnings |
+| `curl` | wallpaper search, speed test |
+| `python3` | palette generation, Google Calendar |
+| `xdg-open` | open recordings and folders |
 | `qrencode` | Wi-Fi share QR in the network panel |
 | `ip` / `ping` (iproute2, iputils) | network panel vitals |
-| `brightnessctl` or `light` | backlight control |
+| `brightnessctl` | backlight control |
 | `cava` | music visualiser |
 | `cliphist` + `wl-clipboard` | clipboard history |
 | `slurp` | window/region picker for screen recording |
@@ -93,20 +111,23 @@ the pure-JS logic tests on every push.
 | --- | --- |
 | `gpu-screen-recorder` | the screen-recording backend (recording is disabled without it) |
 | `mpvpaper` | animated / video wallpapers |
-| `matugen` | Material base16 palettes (always-dark terminal theme) |
+| `matugen` | base16 colours for the `ghostty` theme |
 | `ddcutil` | monitor brightness via DDC (external display faders) |
 | `kdialog` / `zenity` | native folder picker for the record output directory |
 | `ghostty` | live terminal palette reload over D-Bus |
+| `nvibrant` | screen vibrance control |
+| `qt5ct`, `qt6ct` | the Qt theme |
+| `kitty`, `wofi` | the terminal and launcher themes |
 | `fastfetch` | recoloured system readout (needs `~/.config/fastfetch/config.jsonc.in`) |
 | `hypridle` | idle / DPMS lock integration alongside the built-in keep-awake |
 
 ### Technology Stack
 
-- **[Quickshell](https://quickshell.outfoxxed.me) 0.3.0+** — the shell runtime; must be built with the Hyprland, Wayland and Io QML modules. Ships Qt 6 / QtQuick.
+- **[Quickshell](https://quickshell.outfoxxed.me) 0.3.0+** — the shell runtime, on Qt 6. It needs the Hyprland, Wayland, Io and Polkit service modules. Development uses 0.3.2.
 - **[Hyprland](https://hypr.land)** — the Wayland compositor (developed on 0.56.1, works across recent 0.4x/0.5x). Talked to over `hyprctl` IPC.
 - **QML** — the entire shell; no compiled component and no build step.
-- **Bash** — the helper scripts under `scripts/` (wallpaper application, thumbnails, game mode), invoked via Quickshell's `Process`.
-- **Python 3** — `scripts/wallcolors.py`, the palette / manual-hue generator.
+- **Bash** — the helper scripts under `scripts/`, started by Quickshell's `Process`.
+- **Python 3** — `scripts/wallcolors.py` (palettes) and `scripts/gcal.py` (Google Calendar).
 - **Node** — runs the pure-JS logic tests under `lib/` (not needed at runtime).
 
 ### Third-party Services
@@ -114,7 +135,8 @@ the pure-JS logic tests on every push.
 - **[Open-Meteo](https://open-meteo.com)** — weather forecast (no API key; IP geolocation fallback via their companion service).
 - **[Wallhaven](https://wallhaven.cc)** — the online wallpaper browse/search. Thumbnails are streamed from Wallhaven's CDN straight to QML and never touch disk.
 - **GitHub** — the in-app updater pulls the latest commit of this repo.
-- **[Google Calendar API](https://developers.google.com/calendar)** — optional, read-only. Bring your own OAuth client (see [`docs/GCAL-SETUP.md`](docs/GCAL-SETUP.md)); events are fetched by `scripts/gcal.py` and never leave your machine.
+- **[Google Calendar API](https://developers.google.com/calendar)** — optional and read-only. You supply your own OAuth client. `scripts/gcal.py` stores the events on your machine.
+- **[LobeHub icons](https://github.com/lobehub/lobe-icons)** — the provider marks (MIT). See [`assets/marks/SOURCE.md`](assets/marks/SOURCE.md).
 
 ## Installation & Development
 
@@ -152,8 +174,8 @@ Every surface and action is exposed over Quickshell IPC (target `fukushima`). Th
 
 ```conf
 # hyprlang (.conf)
-bind = SUPER, SHIFT+W, exec, qs -p ~/.local/share/quickshell/fukushima ipc call fukushima wallpaper ""
-bind = SUPER, SHIFT+V, exec, qs -p ~/.local/share/quickshell/fukushima ipc call fukushima clipboard ""
+bind = SUPER SHIFT, W, exec, qs -p ~/.local/share/quickshell/fukushima ipc call fukushima wallpaper ""
+bind = SUPER SHIFT, V, exec, qs -p ~/.local/share/quickshell/fukushima ipc call fukushima clipboard ""
 bind = SUPER, slash,   exec, qs -p ~/.local/share/quickshell/fukushima ipc call fukushima launcher ""
 ```
 
@@ -166,31 +188,119 @@ hl.bind(var_mainMod .. " + slash",     hl.dsp.exec_cmd("qs -p ~/.local/share/qui
 
 If you cloned to `~/.config/quickshell/fukushima` instead, replace `qs -p ~/.local/share/quickshell/fukushima` with `qs -c fukushima`.
 
-Available IPC handlers: `launcher`, `wallpaper`, `clipboard`, `mixer`, `calendar`, `media`, `power`, `link`, `battery`, `sysmon`/`system`, `recorder`/`screenrec`/`record`, `quickRecord`, `gameMode`, `peek`, `hide`, `page`, `minimizeWindow`, `restoreWindow`. The `page` handler takes the monitor first (empty = focused) and the surface name second — `qs -c fukushima ipc call fukushima page "" wifi`.
+Available IPC handlers: `launcher`, `wallpaper`, `clipboard`, `mixer` (sound), `display` (screen), `calendar`, `media`, `power`, `link`, `battery`, `usage`, `sysmon`/`system`, `recorder`/`screenrec`/`record`, `quickRecord`, `gameMode`, `peek`, `hide`, `page`, `minimizeWindow`, `restoreWindow`. The `page` handler takes the monitor first (empty = focused) and the surface name second — `qs -c fukushima ipc call fukushima page "" wifi`.
+
+### Polkit Agent
+
+The shell registers as the polkit agent for your session. Only one agent can register. Remove the start line of any other agent from your Hyprland config, for example:
+
+```conf
+exec-once = systemctl --user start hyprpolkitagent
+```
+
+Then stop the agent that runs now:
+
+```bash
+systemctl --user stop hyprpolkitagent
+```
+
+### Themes for Other Apps
+
+These themes use the fixed dark palette. They do not follow the wallpaper.
+
+> **Warning:** each build script writes into `~/.config`. Back up your own files first.
+
+| Command | Changes |
+| --- | --- |
+| `gtk/build.sh` | replaces `gtk.css` in `~/.config/gtk-3.0` and `gtk-4.0` with links. The theme applies to all GTK apps. Use it with `adw-gtk3-dark`. |
+| `qt/build.sh` | writes `qt5ct.conf` and `qt6ct.conf`, and links the palette. |
+| `kitty/build.sh` | links the palette and adds an `include` line to `kitty.conf`. This palette overrides earlier colour files. |
+| `wofi/build.sh` | replaces `style.css` with a link, and sets `term=kitty` in the wofi config. |
+
+For Qt, install `qt5ct` and `qt6ct`. Add this line to your Hyprland config, then log in again:
+
+```conf
+env = QT_QPA_PLATFORMTHEME,qt6ct:qt5ct
+```
+
+The Qt theme changes Qt Widgets apps. Qt Quick apps keep their own colours.
+
+### Usage Notch
+
+The shell only reads `$XDG_STATE_HOME/llm-usage/usage.json` (default `~/.local/state/llm-usage/usage.json`). A separate collector writes the file. This repo does not include a collector, and the shell never reads provider credentials. The notch is hidden until the file has data.
+
+```json
+{
+  "version": 1,
+  "updated_at": 1795570000,
+  "providers": {
+    "codex": {
+      "status": "ok",
+      "plan": "plus",
+      "updated_at": 1795570000,
+      "windows": {
+        "session": { "used_percent": 12, "resets_at": 1795588000 },
+        "weekly": { "used_percent": 3, "resets_at": 1796039000 }
+      }
+    },
+    "antigravity": { "status": "unavailable", "reason": "not installed", "windows": {} }
+  }
+}
+```
+
+- The provider keys are `codex`, `claude` and `antigravity`.
+- `status` is `ok`, `stale`, `unavailable` or `error`. Use `reason` to explain the last two.
+- Times are Unix epoch seconds. `used_percent` is 0 to 100.
+- A window can set its own `label` and `short` names.
+- Write the file atomically. If the file is older than 10 minutes, the shell shows the data as stale.
+
+### Google Calendar
+
+Do the client setup once in the [Google Cloud console](https://console.cloud.google.com/):
+
+1. Create a project and enable the **Google Calendar API**.
+2. Configure the consent screen as **External**. Keep it in **Testing** mode.
+3. Add each Google address that you want to connect as a test user.
+4. Create an **OAuth client ID** of the type **Desktop app**.
+
+Then link your accounts:
+
+1. Click the clock on the pill.
+2. Click the stacked-layers icon to open the Calendars page.
+3. Paste the client ID and client secret, then click **Connect with Google**.
+4. Approve the access in the browser.
+
+Google shows an "unverified app" screen for a client in Testing mode.
 
 ### Development
 
-The shell is interpreted QML — edit a file, and Quickshell hot-reloads it. Full setup (QML tooling, editor config, the isolated dev instance) is in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md); [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) covers the layout and [`docs/ROADMAP.md`](docs/ROADMAP.md) where the fork is headed. In short:
+The shell is interpreted QML. Edit a file, and Quickshell reloads it.
 
 ```bash
-sudo apt install just              # task runner
-just doctor                        # confirm the toolchain
-just dev                           # run this checkout as an isolated instance
+sudo apt install just
 ```
 
-`just dev` runs alongside a normally-installed instance without touching its state.
+```bash
+just doctor
+```
+
+```bash
+just dev
+```
+
+`just doctor` checks the toolchain. `just dev` runs this checkout as an isolated instance, beside an installed instance.
 
 ### Testing
 
 ```bash
-just check     # qmllint + the lib/ logic tests (this is what CI runs)
+just check
 ```
 
-There is no automated UI test (it would need a live compositor). After a behaviour-preserving change, walk [`docs/SMOKE-TEST.md`](docs/SMOKE-TEST.md) — a manual click-through of every surface and pill state.
+`just check` runs `qmllint` and the logic tests in `lib/`. There is no automated UI test, because it needs a live compositor.
 
 ### State & Cache
 
-- **state:** `$XDG_STATE_HOME/fukushima` (default `~/.local/state/fukushima`) — flags, events, gamemode snapshot, and Google Calendar OAuth tokens under `gcal/` (0600); the wallpaper selection lives in sibling `~/.local/state/fukushima-wallpaper*` files.
+- **state:** `$XDG_STATE_HOME/fukushima` (default `~/.local/state/fukushima`) — flags, events, gamemode snapshot, and Google Calendar OAuth tokens under `gcal/` (0600). The wallpaper selection is in the sibling `~/.local/state/fukushima-wallpaper*` files.
 - **cache:** `$XDG_CACHE_HOME/fukushima` (default `~/.cache/fukushima`) — palette JSON and record thumbnails; wallpaper previews under `fukushima-wp-thumbs/`, clipboard previews under `cliphist-thumbs/`, weather location under `pill/`.
 
 ### Uninstalling
@@ -199,15 +309,21 @@ There is no automated UI test (it would need a live compositor). After a behavio
 curl -fsSL https://raw.githubusercontent.com/thatkazuk1/fukushima/master/uninstall.sh | bash
 ```
 
-Removes the program files, all state (`~/.local/state/fukushima*`) and all caches (`~/.cache/fukushima*`, `~/.cache/cliphist-thumbs`, `~/.cache/pill`), and stops any running instance. You still remove the `exec-once` line and the keybinds from your Hyprland config yourself, and uninstall any dependencies you added only for this.
+Removes the program files, all state (`~/.local/state/fukushima*`) and all caches (`~/.cache/fukushima*`, `~/.cache/cliphist-thumbs`, `~/.cache/pill`), and stops any running instance. It does not undo these items, so remove them yourself:
+
+- the `exec-once` line, the keybinds and the Qt `env` line in your Hyprland config
+- the theme links and config edits from the build scripts
+- the packages that you added only for this shell
+
+If you removed another polkit agent, add its start line again.
 
 ## How to Get Help
 
-This is a personal project with no SLA. [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) explains the codebase; the header comment on each surface explains what it does and why. For a genuine bug in the public material, the issue tracker is checked periodically.
+This is a personal project with no service level. The header comment of each QML file explains what it does and why. For a real bug, open an issue.
 
 ## Contributing
 
-Not actively seeking contributions while the refactor is in flight — the architecture is moving under your feet ([`docs/ROADMAP.md`](docs/ROADMAP.md) tracks it). Bug reports for real breakage are welcome. Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+The project does not look for contributions at this time. Bug reports for real faults are welcome. Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
 ## Acknowledgements
 
@@ -223,9 +339,5 @@ Lineage: Ricelin → Ukishima → Fukushima. This repo forks amanhex's Ukishima 
 **Desmond Edem** ([@thatkazuk1](https://github.com/thatkazuk1)) — this fork.
 
 Base code by **Gakuseei** (Ricelin) and **amanhex** (Ukishima); see [Acknowledgements](#acknowledgements).
-
-### Repo Activity
-
-TBA.
 
 **[Back to top](#table-of-contents)**
