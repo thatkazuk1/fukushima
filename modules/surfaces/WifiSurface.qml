@@ -30,7 +30,9 @@ PillSurface {
     readonly property var devices: (typeof Networking !== "undefined" && Networking && Networking.devices) ? Networking.devices.values : []
     readonly property var wifiDev: devices.find(function(d) { return d && d.type === DeviceType.Wifi }) || null
     readonly property string wifiIface: wifiDev ? (wifiDev.name || "wlan0") : "wlan0"
-    readonly property bool wifiOn: (typeof Networking !== "undefined" && Networking) ? Networking.wifiEnabled : false
+    // Radios reads the real radio state; Quickshell's copy can go stale (see services/Radios.qml).
+    readonly property bool wifiOn: Radios.wifi !== "" ? Radios.wifi === "on"
+        : ((typeof Networking !== "undefined" && Networking) ? Networking.wifiEnabled : false)
     readonly property var nets: (wifiDev && wifiDev.networks) ? wifiDev.networks.values : []
     readonly property var netsSorted: nets.slice().sort(function(a, b) {
         var ar = a && a.connected ? 2 : (a && root.knownProfiles[a.name] === true ? 1 : 0);
@@ -497,6 +499,10 @@ PillSurface {
 
     readonly property bool connected: NetInfo.iface.length > 0
     readonly property bool isWifi: NetInfo.type === "wifi"
+    // The pill shows one network icon: a wired route replaces wifi, and so does this surface.
+    readonly property bool wired: Radios.ethernet
+    readonly property string wiredSpeed: NetInfo.linkSpeed >= 1000 ? (NetInfo.linkSpeed / 1000) + " Gbit"
+        : (NetInfo.linkSpeed > 0 ? NetInfo.linkSpeed + " Mbit" : "")
 
     // --- header ----------------------------------------------------------
 
@@ -515,7 +521,7 @@ PillSurface {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: Flags.showGlyphs
-                text: "波"
+                text: root.wired ? "線" : "波"
                 color: Theme.cream
                 font.family: Theme.fontJp
                 font.weight: Font.Medium
@@ -523,7 +529,7 @@ PillSurface {
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
-                text: "WIFI"
+                text: root.wired ? "ETHERNET" : "WIFI"
                 color: Theme.subtle
                 font.family: Theme.font
                 font.pixelSize: 10 * root.s
@@ -534,8 +540,8 @@ PillSurface {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 128 * root.s
-                text: "· " + root.statusText
-                color: root.activeNet ? Theme.vermLit : Theme.faint
+                text: root.wired ? "· " + (root.wiredSpeed.length ? root.wiredSpeed : "Connected") : "· " + root.statusText
+                color: (root.wired || root.activeNet) ? Theme.vermLit : Theme.faint
                 font.family: Theme.font
                 font.pixelSize: 9.5 * root.s
                 font.weight: Font.Medium
@@ -600,7 +606,7 @@ PillSurface {
 
             Item {
                 anchors.verticalCenter: parent.verticalCenter
-                visible: root.wifiOn
+                visible: root.wifiOn && !root.wired
                 width: 16 * root.s
                 height: 16 * root.s
 
@@ -642,11 +648,9 @@ PillSurface {
                 id: wifiToggle
                 s: root.s
                 anchors.verticalCenter: parent.verticalCenter
+                visible: !root.wired
                 on: root.wifiOn
-                onToggled: {
-                    if (typeof Networking !== "undefined" && Networking)
-                        Networking.wifiEnabled = !Networking.wifiEnabled;
-                }
+                onToggled: Radios.toggleWifi()
 
                 HoverHandler { id: wifiToggleHover }
                 Tooltip {
@@ -812,10 +816,10 @@ PillSurface {
     Rectangle {
         id: div3
         anchors.top: bandSection.bottom
-        anchors.topMargin: 9 * root.s
+        anchors.topMargin: root.wired ? 0 : 9 * root.s
         anchors.left: parent.left
         anchors.right: parent.right
-        height: 1
+        height: root.wired ? 0 : 1
         color: Theme.hair
     }
 
@@ -824,10 +828,11 @@ PillSurface {
     Item {
         id: listFrame
         anchors.top: div3.bottom
-        anchors.topMargin: 8 * root.s
+        anchors.topMargin: root.wired ? 0 : 8 * root.s
         anchors.left: parent.left
         anchors.right: parent.right
-        height: root.wifiOn ? Math.min(Math.max(netCol.implicitHeight, 26 * root.s), 220 * root.s) : 0
+        visible: !root.wired
+        height: root.wired ? 0 : root.wifiOn ? Math.min(Math.max(netCol.implicitHeight, 26 * root.s), 220 * root.s) : 0
 
         Text {
             anchors.centerIn: parent

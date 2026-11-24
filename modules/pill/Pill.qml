@@ -937,6 +937,8 @@ Item {
         const drop = 12 * pill.s;
         if (soulTarget === "wifi")
             return wifiIcon.mapToItem(pill, wifiIcon.width / 2, wifiIcon.height + drop * 0.55);
+        if (soulTarget === "eth")
+            return ethIcon.mapToItem(pill, ethIcon.width / 2, ethIcon.height + drop * 0.55);
         if (soulTarget === "bt")
             return btIcon.mapToItem(pill, btIcon.width / 2, btIcon.height + drop * 0.55);
         if (soulTarget === "battery")
@@ -1713,13 +1715,40 @@ Item {
 
                 Row {
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: pill.wifiPresent || pill.btPresent
+                    visible: Radios.ethernet || pill.wifiPresent || pill.btPresent
                     spacing: 12 * pill.s
+
+                    Item {
+                        id: ethIcon
+                        anchors.verticalCenter: parent.verticalCenter
+                        visible: Radios.ethernet
+                        width: 15 * pill.s
+                        height: 15 * pill.s
+
+                        GlyphIcon {
+                            anchors.fill: parent
+                            name: "ethernet"
+                            color: ethArea.containsMouse ? Theme.cream : Theme.iconDim
+                            stroke: 1.7
+                        }
+
+                        MouseArea {
+                            id: ethArea
+                            anchors.fill: parent
+                            anchors.margins: -6 * pill.s
+                            hoverEnabled: true
+                            enabled: hover.live
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: pill.requestSurface("wifi")
+                            onContainsMouseChanged: if (containsMouse) pill.soulTarget = "eth"
+                        }
+                    }
 
                     Item {
                         id: wifiIcon
                         anchors.verticalCenter: parent.verticalCenter
-                        visible: pill.wifiPresent
+                        // One network icon, as in omarchy Quattro: a wired route takes the slot.
+                        visible: pill.wifiPresent && !Radios.ethernet
                         width: 15 * pill.s
                         height: 15 * pill.s
 

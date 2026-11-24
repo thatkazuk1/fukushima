@@ -31,6 +31,7 @@ Singleton {
     property int signalPct: -1
     property string linkRate: ""
     property string freq: ""
+    property int linkSpeed: 0
 
     // --- derived (via lib/net.js) ---
     property var _tp: ({})
@@ -124,6 +125,7 @@ Singleton {
                 root.signalPct = m.signal !== undefined ? parseInt(m.signal, 10) : -1;
                 root.linkRate = m.rate || "";
                 root.freq = m.freq || "";
+                root.linkSpeed = m.speed !== undefined ? parseInt(m.speed, 10) || 0 : 0;
 
                 if (m.rx_bytes !== undefined && m.tx_bytes !== undefined) {
                     root._tp = Net.throughput(root._tp,

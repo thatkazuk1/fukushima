@@ -21,6 +21,7 @@ import "../config"
  *
  * `bt` and `wifi` hold "none" (no hardware), "on" or "off". Both hold "" until
  * the first read lands; the pill then falls back to the Quickshell values.
+ * `ethernet` is true while the route to the internet uses a wired device.
  */
 Singleton {
     id: root
@@ -29,6 +30,8 @@ Singleton {
     property string wifi: ""
     /** Signal of the connected wifi network, 0 to 1. Negative when unknown. */
     property real wifiSignal: -1
+    /** True while the route to the internet uses a wired device. */
+    property bool ethernet: false
 
     readonly property bool known: bt !== "" && wifi !== ""
 
@@ -87,6 +90,7 @@ Singleton {
                 var bt = "";
                 var wifi = "";
                 var sig = -1;
+                var eth = false;
                 var lines = this.text.split("\n");
                 for (var i = 0; i < lines.length; i++) {
                     var kv = lines[i].split("\t");
@@ -98,6 +102,8 @@ Singleton {
                         wifi = kv[1];
                     else if (kv[0] === "wifi_signal")
                         sig = Math.max(0, Math.min(100, parseInt(kv[1]))) / 100;
+                    else if (kv[0] === "eth")
+                        eth = kv[1].trim() === "on";
                 }
                 // An empty reply means the script failed; keep the last good state.
                 if (bt === "" || wifi === "")
@@ -105,6 +111,7 @@ Singleton {
                 root.bt = bt;
                 root.wifi = wifi;
                 root.wifiSignal = isNaN(sig) ? -1 : sig;
+                root.ethernet = eth;
             }
         }
     }

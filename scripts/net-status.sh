@@ -14,6 +14,7 @@
 #   signal  74
 #   rate    195 Mbit/s
 #   freq    5220
+#   speed   1000        (ethernet only, Mbit/s, absent when the link reports none)
 #   router_ping_ms   3.35        (absent line = timed out this poll)
 #   internet_ping_ms 12.1
 set -u
@@ -63,6 +64,8 @@ if [ -d "/sys/class/net/$iface/wireless" ]; then
     [ -n "$ssid" ] && printf 'ssid\t%s\n' "$ssid"
 else
     printf 'type\tethernet\n'
+    speed=$(cat "/sys/class/net/$iface/speed" 2>/dev/null)
+    [ "${speed:-0}" -gt 0 ] 2>/dev/null && printf 'speed\t%s\n' "$speed"
 fi
 
 # Router + internet latency, in parallel, one packet each, 1s ceiling. A line

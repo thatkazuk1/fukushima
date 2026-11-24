@@ -49,7 +49,7 @@ This is a fork of amanhex's **Ukishima** (浮島, *"floating island"*) — the n
 
 - **LLM usage notch:** ring gauges for the Codex, Claude and Antigravity limits, with the time until each reset. It warns at 80, 95 and 100 percent. It needs [a separate collector](#usage-notch).
 - **Polkit agent:** the password prompt uses the pill palette and font. See [Polkit Agent](#polkit-agent).
-- **Network panel:** live vitals (ping, packet loss, transfer rates, session totals, IP and gateway), a Wi-Fi band selector, QR sharing, a speed test, and the Known and Other network lists.
+- **Network panel:** live vitals (ping, packet loss, transfer rates, session totals, IP and gateway), a Wi-Fi band selector, QR sharing, a speed test, and the Known and Other network lists. When the route to the internet is wired, the pill shows one Ethernet icon, and the panel shows an Ethernet view with the link speed.
 - **Wallpaper system:** the `awww` backend with a shuffled bag, per-monitor assignment, transitions, video wallpapers (`mpvpaper`) and a fit control. It includes [Wallhaven](https://wallhaven.cc) search with sorting and pagination. Online thumbnails stay in memory.
 - **Palettes:** fixed light and dark palettes, a palette from the wallpaper, or a manual hue. A wallpaper change or a manual hue also updates the `ghostty` and `fastfetch` colours.
 - **Screen recorder:** `gpu-screen-recorder` with a window or region picker, countdown, quality presets, audio and a strip of recent clips.
@@ -98,7 +98,7 @@ Actively developed. CI runs the pure-JS logic tests and `qmllint` on each push t
 | `python3` | palette generation, Google Calendar |
 | `xdg-open` | open recordings and folders |
 | `qrencode` | Wi-Fi share QR in the network panel |
-| `ip` / `ping` (iproute2, iputils) | network panel vitals |
+| `ip` / `ping` (iproute2, iputils) | network panel vitals, wired route detection |
 | `brightnessctl` | backlight control |
 | `cava` | music visualiser |
 | `cliphist` + `wl-clipboard` | clipboard history |
