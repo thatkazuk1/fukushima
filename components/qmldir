@@ -17,7 +17,9 @@ SettingsRow SettingsRow.qml
 SettingsSeg SettingsSeg.qml
 SettingsSurface SettingsSurface.qml
 Tooltip Tooltip.qml
+RingGauge RingGauge.qml
 Tray Tray.qml
+UsageGlyph UsageGlyph.qml
 WheelScroller WheelScroller.qml
 WifiGlyph WifiGlyph.qml
 WifiQr WifiQr.qml

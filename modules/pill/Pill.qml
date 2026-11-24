@@ -76,6 +76,7 @@ Item {
     readonly property bool wifiOpen: surface === "wifi"
     readonly property bool btOpen: surface === "bt"
     readonly property bool batteryOpen: surface === "battery"
+    readonly property bool usageOpen: surface === "usage"
     readonly property bool recorderOpen: surface === "recorder"
     readonly property bool sysmonOpen: surface === "sysmon"
     readonly property bool screenOpen: surface === "screen"
@@ -254,14 +255,17 @@ Item {
 
     readonly property bool stripMedia: Players.has && stripRoomForTitle >= stripMinTitle
     readonly property real stripRoomForTitle: stripCap - 2 * stripPad - stripArtW - stripFixedW
-        - 4 * stripGap - stripMediaGaps * stripGap
+        - stripGaps * stripGap - stripMediaGaps * stripGap
         - (Cava.active ? stripVizW : 0) - (ScreenRec.recording ? stripRecW : 0)
     readonly property real stripTitleW: stripMedia ? Math.min(stripMaxTitle, stripRoomForTitle, Math.max(stripMinTitle, stripTitleMetrics.advanceWidth)) : 0
     readonly property real stripFixedW: stripDay.implicitWidth + stripTime.implicitWidth
         + stripWs.implicitWidth + stripLay.implicitWidth + stripBat.implicitWidth
+        + (stripUsage.visible ? stripUsage.implicitWidth : 0)
+    /** Gaps between the fixed strip sections; the usage glyph adds one. */
+    readonly property int stripGaps: 4 + (stripUsage.visible ? 1 : 0)
 
     readonly property real stripFaceW: {
-        let w = 2 * stripPad + stripFixedW + 4 * stripGap;
+        let w = 2 * stripPad + stripFixedW + stripGaps * stripGap;
         if (stripMedia) {
             w += stripArtW + stripGap + stripTitleW;
             if (Cava.active) w += stripVizW + stripGap;
@@ -286,6 +290,7 @@ Item {
     readonly property real mediaW: (Players.pickable.length > 1 ? 460 : 390) * s
     readonly property real mediaH: 150 * s
     readonly property real batteryW: 316 * s
+    readonly property real usageW: 330 * s
     readonly property real wifiW: 376 * s
     readonly property real btW: 286 * s
     readonly property real recorderW: 384 * s
@@ -346,6 +351,7 @@ Item {
         wifi:      { size: () => Qt.size(wifiW, surfaceItem(ldWifi).implicitHeight + 26 * s), ame: () => surfaceItem(ldWifi) },
         bt:        { size: () => Qt.size(btW, surfaceItem(ldBt).implicitHeight + 26 * s), ame: () => surfaceItem(ldBt) },
         battery:   { size: () => Qt.size(batteryW, surfaceItem(ldBattery).implicitHeight + 26 * s), ame: () => surfaceItem(ldBattery) },
+        usage:     { size: () => Qt.size(usageW, surfaceItem(ldUsage).implicitHeight + 26 * s), ame: () => null },
         recorder:  { size: () => Qt.size(recorderW, surfaceItem(ldRecorder).implicitHeight + 33 * s), ame: () => surfaceItem(ldRecorder) },
         sysmon:    { size: () => Qt.size(sysmonW, surfaceItem(ldSysmon).implicitHeight + 33 * s), ame: () => surfaceItem(ldSysmon) },
         screen:    { size: () => Qt.size(settingsW, surfaceItem(ldScreen).implicitHeight + 29 * s), ame: () => surfaceItem(ldScreen) },
@@ -377,6 +383,7 @@ Item {
         wifi:       () => ldWifi,
         bt:         () => ldBt,
         battery:    () => ldBattery,
+        usage:      () => ldUsage,
         recorder:   () => ldRecorder,
         sysmon:     () => ldSysmon,
         screen:     () => ldScreen,
@@ -934,6 +941,8 @@ Item {
             return btIcon.mapToItem(pill, btIcon.width / 2, btIcon.height + drop * 0.55);
         if (soulTarget === "battery")
             return batteryIcon.mapToItem(pill, batteryIcon.width / 2, batteryIcon.height + drop * 0.55);
+        if (soulTarget === "usage")
+            return usageIcon.mapToItem(pill, usageIcon.width / 2, usageIcon.height + drop * 0.55);
         if (soulTarget === "inbox")
             return inboxIcon.mapToItem(pill, inboxIcon.width / 2, inboxIcon.height + drop * 0.55);
         if (soulTarget === "mixer")
@@ -1249,6 +1258,13 @@ Item {
                 font.pixelSize: 12 * pill.s
                 font.weight: Font.DemiBold
             }
+            UsageGlyph {
+                id: stripUsage
+                anchors.verticalCenter: parent.verticalCenter
+                visible: Usage.hasData
+                s: pill.s
+                ringSize: 13
+            }
             Row {
                 id: stripBat
                 anchors.verticalCenter: parent.verticalCenter
@@ -1410,6 +1426,12 @@ Item {
                 font.family: Theme.font
                 font.pixelSize: 11 * pill.s
                 font.weight: Font.DemiBold
+            }
+            UsageGlyph {
+                visible: pill.specialView === "" && Flags.mainDisplay === "system" && Usage.hasData
+                anchors.verticalCenter: parent.verticalCenter
+                s: pill.s
+                ringSize: 12
             }
             Row {
                 visible: pill.specialView === "" && Flags.mainDisplay === "system"
@@ -1966,6 +1988,32 @@ Item {
                 }
 
                 Item {
+                    id: usageIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: Usage.hasData
+                    width: usageGlyph.implicitWidth
+                    height: 17 * pill.s
+
+                    UsageGlyph {
+                        id: usageGlyph
+                        anchors.centerIn: parent
+                        s: pill.s
+                        bright: usageArea.containsMouse
+                    }
+
+                    MouseArea {
+                        id: usageArea
+                        anchors.fill: parent
+                        anchors.margins: -6 * pill.s
+                        hoverEnabled: true
+                        enabled: hover.live
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: pill.requestSurface("usage")
+                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "usage"
+                    }
+                }
+
+                Item {
                     id: inboxIcon
                     anchors.verticalCenter: parent.verticalCenter
                     width: 17 * pill.s
@@ -2223,6 +2271,18 @@ Item {
         sourceComponent: BatterySurface {
             s: pill.s
             open: pill.batteryOpen
+            morphCloseness: pill.morphCloseness
+            onRequestClose: pill.requestClose()
+        }
+    }
+
+    Loader {
+        id: ldUsage
+        active: false
+        anchors.fill: parent
+        sourceComponent: UsageSurface {
+            s: pill.s
+            open: pill.usageOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
         }

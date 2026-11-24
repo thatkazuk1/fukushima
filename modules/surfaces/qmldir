@@ -19,6 +19,7 @@ SysmonSurface SysmonSurface.qml
 ThemeSurface ThemeSurface.qml
 Toast Toast.qml
 UpdateSurface UpdateSurface.qml
+UsageSurface UsageSurface.qml
 Wallpaper Wallpaper.qml
 WeatherSurface WeatherSurface.qml
 WifiSurface WifiSurface.qml

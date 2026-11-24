@@ -17,6 +17,7 @@ singleton ScreenRec ScreenRec.qml
 singleton Spaces Spaces.qml
 singleton Sysmon Sysmon.qml
 singleton UpdateToast UpdateToast.qml
+singleton Usage Usage.qml
 singleton Walls Walls.qml
 singleton Weather Weather.qml
 singleton WorkspaceRules WorkspaceRules.qml

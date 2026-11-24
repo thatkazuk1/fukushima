@@ -47,6 +47,7 @@ ShellRoot {
         void GameMode.active;
         void BatteryAlerts.armed;
         void UpdateToast.armed;
+        void Usage.armed;
         // Pin Gcal so its refresh timer runs and an in-progress account link
         // survives the calendar surface unloading when the pill closes.
         void Gcal.ready;
@@ -143,6 +144,7 @@ ShellRoot {
         function battery(mon: string): void { root.toggleSurface(mon, "battery"); }
         function recorder(mon: string): void { root.toggleSurface(mon, "recorder"); }
         function screenrec(mon: string): void { root.toggleSurface(mon, "recorder"); }
+        function usage(mon: string): void { root.toggleSurface(mon, "usage"); }
         function record(mon: string): void { root.toggleSurface(mon, "recorder"); }
 
         /**
