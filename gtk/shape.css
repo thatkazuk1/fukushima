@@ -1,0 +1,59 @@
+/* Shape and type rules shared by GTK3 and GTK4. */
+* { font-family: "Lato", "Ubuntu Sans", sans-serif; }
+
+window.background { background-color: @window_bg_color; color: @window_fg_color; }
+headerbar, .titlebar {
+  background-image: linear-gradient(to bottom, #171717, #0c0c0c);
+  border-bottom: 1px solid #2b2b2b;
+  box-shadow: none;
+}
+
+button {
+  border-radius: 999px;
+  padding: 4px 16px;
+  background-image: none;
+  background-color: #141414;
+  border: 1px solid #2b2b2b;
+  box-shadow: none;
+  color: #8c8c8c;
+}
+button:hover { color: #ececec; background-color: #1c1c1c; }
+button.suggested-action, button.destructive-action {
+  background-color: #c0442b;
+  border-color: #e0563b;
+  color: #ffffff;
+}
+button.suggested-action:hover { background-color: #d04a2f; }
+button.flat, headerbar button.flat { background-color: transparent; border-color: transparent; }
+button.circular, button.image-button { padding: 4px 8px; }
+
+entry, spinbutton, searchbar entry {
+  border-radius: 13px;
+  background-color: #141414;
+  border: 1px solid #2b2b2b;
+  box-shadow: none;
+  color: #ececec;
+}
+entry:focus, entry:focus-within { border-color: #c0442b; box-shadow: none; outline: none; }
+selection, entry selection, text selection { background-color: #c0442b; color: #ffffff; }
+
+popover > contents, popover.background > contents, menu {
+  border-radius: 13px;
+  border: 1px solid #2b2b2b;
+  background-color: #171717;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+list, listview, treeview.view, .view { background-color: #0c0c0c; }
+row:selected, row:selected:hover, treeview.view:selected, iconview:selected, .view:selected, flowboxchild:selected {
+  background-color: alpha(#c0442b, 0.28);
+  color: #ececec;
+}
+row:hover { background-color: alpha(#ececec, 0.05); }
+placessidebar, .sidebar { background-color: #0f0f0f; }
+placessidebar row:selected { background-color: alpha(#c0442b, 0.28); }
+
+scrollbar slider { border-radius: 999px; background-color: #2b2b2b; min-width: 6px; min-height: 6px; }
+scrollbar slider:hover { background-color: #8c8c8c; }
+separator { background-color: #2b2b2b; }
+tooltip, tooltip.background { border-radius: 9px; background-color: #171717; border: 1px solid #2b2b2b; color: #ececec; }
