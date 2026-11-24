@@ -15,17 +15,19 @@ Row {
 
     property real s: 1
     /** Ring diameter before the `s` scale. */
-    property real ringSize: 14
+    property real ringSize: 17
     property bool bright: false
 
     spacing: 4 * s
 
     Repeater {
-        model: Usage.providers
+        // A count model keeps the rings alive across file updates, so they animate.
+        model: Usage.providers.length
 
         RingGauge {
             id: ring
-            required property var modelData
+            required property int index
+            readonly property var modelData: Usage.providers[index] || Usage.emptyProvider("", "")
 
             readonly property real pct: Usage.peakOf(modelData)
             readonly property bool has: pct >= 0 && Usage.statusOf(modelData) !== "error"
@@ -37,6 +39,15 @@ Row {
             dim: !has
             idleColor: root.bright ? Theme.cream : Theme.iconDim
             opacity: Usage.statusOf(modelData) === "stale" ? 0.55 : 1
+
+            ProviderMark {
+                anchors.centerIn: parent
+                width: root.ringSize * 0.5 * root.s
+                height: width
+                provider: ring.modelData.id
+                tint: !ring.has ? Theme.faint
+                    : (ring.pct >= 80 ? ring.tint(ring.pct) : (root.bright ? Theme.cream : Theme.iconDim))
+            }
         }
     }
 }

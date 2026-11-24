@@ -290,7 +290,7 @@ Item {
     readonly property real mediaW: (Players.pickable.length > 1 ? 460 : 390) * s
     readonly property real mediaH: 150 * s
     readonly property real batteryW: 316 * s
-    readonly property real usageW: 330 * s
+    readonly property real usageW: 430 * s
     readonly property real wifiW: 376 * s
     readonly property real btW: 286 * s
     readonly property real recorderW: 384 * s
@@ -1263,7 +1263,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: Usage.hasData
                 s: pill.s
-                ringSize: 13
+                ringSize: 16
             }
             Row {
                 id: stripBat
@@ -1431,7 +1431,7 @@ Item {
                 visible: pill.specialView === "" && Flags.mainDisplay === "system" && Usage.hasData
                 anchors.verticalCenter: parent.verticalCenter
                 s: pill.s
-                ringSize: 12
+                ringSize: 16
             }
             Row {
                 visible: pill.specialView === "" && Flags.mainDisplay === "system"

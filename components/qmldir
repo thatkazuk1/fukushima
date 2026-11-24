@@ -18,6 +18,7 @@ SettingsSeg SettingsSeg.qml
 SettingsSurface SettingsSurface.qml
 Tooltip Tooltip.qml
 RingGauge RingGauge.qml
+ProviderMark ProviderMark.qml
 Tray Tray.qml
 UsageGlyph UsageGlyph.qml
 WheelScroller WheelScroller.qml

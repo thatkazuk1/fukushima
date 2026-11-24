@@ -14,6 +14,8 @@ import Quickshell.Io
  * File: `$XDG_STATE_HOME/llm-usage/usage.json`, contract version 1. A provider
  * has `status` ok, stale, unavailable or error, an optional `plan` and
  * `reason`, and `windows` keyed `session` (5 hours) and `weekly` (7 days).
+ * Antigravity has no session window: it sends `weekly` and `weekly_3p`. A
+ * window can carry its own `label` and `short` names.
  * Times are Unix epoch seconds and `used_percent` is 0 to 100. A missing
  * window or provider is shown dim with a reason, never as an error.
  *
@@ -67,11 +69,15 @@ Singleton {
         return m;
     }
 
-    /** Effective status: an "ok" provider with old data counts as stale. */
+    /**
+     * Effective status. The collector sets "stale" for each provider with its
+     * own age limit. This adds only one case: the whole file is old, so the
+     * collector stopped and an "ok" status can no longer be trusted.
+     */
     function statusOf(p) {
         void root.tick;
-        if (p.status === "ok" && p.updatedAt > 0
-                && (Date.now() / 1000 - p.updatedAt) > staleSecs)
+        if (p.status === "ok" && fileUpdatedAt > 0
+                && (Date.now() / 1000 - fileUpdatedAt) > staleSecs)
             return "stale";
         return p.status;
     }
@@ -120,13 +126,23 @@ Singleton {
         return p.windows.length > 0 ? p.windows[0] : null;
     }
 
-    /** Window to draw on the inner ring (session), or null when there is none. */
+    /**
+     * Window to draw on the inner ring: the session, else the first window that
+     * is not on the outer ring. Null when the provider has only one window.
+     */
     function innerWindow(p) {
+        var outer = outerWindow(p);
+        var other = null;
         for (var i = 0; i < p.windows.length; i++) {
-            if (p.windows[i].key === "session" && p.windows.length > 1)
-                return p.windows[i];
+            var w = p.windows[i];
+            if (w === outer)
+                continue;
+            if (w.key === "session")
+                return w;
+            if (other === null)
+                other = w;
         }
-        return null;
+        return other;
     }
 
     function ageOf(ts) {
@@ -152,15 +168,15 @@ Singleton {
         var wins = [];
         var w = raw.windows || {};
         var keys = Object.keys(w).sort(function(a, b) {
-            var o = { session: 0, weekly: 1 };
+            var o = { session: 0, weekly: 1, weekly_3p: 2 };
             return (o[a] !== undefined ? o[a] : 9) - (o[b] !== undefined ? o[b] : 9);
         });
         for (var i = 0; i < keys.length; i++) {
             var it = w[keys[i]];
             if (!it || typeof it.used_percent !== "number")
                 continue;
-            wins.push({ key: keys[i], label: windowNames[keys[i]] || keys[i],
-                        short: windowShort[keys[i]] || keys[i],
+            wins.push({ key: keys[i], label: String(it.label || windowNames[keys[i]] || keys[i]),
+                        short: String(it.short || windowShort[keys[i]] || keys[i]),
                         pct: Math.max(0, Math.min(100, it.used_percent)),
                         resetsAt: Number(it.resets_at) || 0 });
         }

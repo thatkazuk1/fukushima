@@ -7,9 +7,9 @@ import "../../components"
 
 /**
  * 量 USAGE surface: the LLM usage limits as ring gauges, one card per provider.
- * A provider with a session and a weekly window shows the weekly window on the
- * outer ring and the 5 hour session on the inner ring, with the larger of the
- * two percents in the middle. Under the ring sit the provider name and one line
+ * A provider with two windows shows the weekly window on the outer ring and the
+ * other window (the 5 hour session, or a second weekly window) on the inner
+ * ring, with the highest percent in the middle. Under the ring sit the provider name and one line
  * for each window: label, used percent and the time until reset. Ring colour
  * follows the load (normal, flame from 80, vermilion from 95). A provider with
  * no data shows a faint empty ring and the word "no data"; the reason appears in
@@ -83,17 +83,20 @@ PillSurface {
             id: cards
             width: parent.width
             topPadding: 14 * root.s
-            spacing: 8 * root.s
+            spacing: 22 * root.s
 
             readonly property real cardW: (width - spacing * Math.max(0, Usage.providers.length - 1))
                 / Math.max(1, Usage.providers.length)
 
+            // The models are counts, so a file update keeps the delegates and
+            // the ring arcs animate from the old value to the new one.
             Repeater {
-                model: Usage.providers
+                model: Usage.providers.length
 
                 Column {
                     id: card
-                    required property var modelData
+                    required property int index
+                    readonly property var modelData: Usage.providers[index] || Usage.emptyProvider("", "")
 
                     readonly property string status: Usage.statusOf(modelData)
                     readonly property bool live: modelData.windows.length > 0
@@ -145,15 +148,25 @@ PillSurface {
                         width: parent.width
                         spacing: 1 * root.s
 
-                        Text {
-                            width: parent.width
-                            horizontalAlignment: Text.AlignHCenter
-                            text: card.modelData.name
-                            color: card.live ? Theme.cream : Theme.dim
-                            font.family: Theme.font
-                            font.pixelSize: 11.5 * root.s
-                            font.weight: Font.DemiBold
-                            elide: Text.ElideRight
+                        Row {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 6 * root.s
+
+                            ProviderMark {
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 13 * root.s
+                                height: 13 * root.s
+                                provider: card.modelData.id
+                                tint: card.live ? Theme.cream : Theme.dim
+                            }
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: card.modelData.name
+                                color: card.live ? Theme.cream : Theme.dim
+                                font.family: Theme.font
+                                font.pixelSize: 11.5 * root.s
+                                font.weight: Font.DemiBold
+                            }
                         }
                         Text {
                             width: parent.width
@@ -161,7 +174,6 @@ PillSurface {
                             text: card.status === "stale" ? "STALE · " + Usage.ageOf(card.modelData.updatedAt)
                                 : (card.status === "error" ? "ERROR"
                                 : (card.live ? card.modelData.plan : "no data"))
-                            visible: text.length > 0
                             color: card.status === "error" ? Theme.vermLit
                                 : (card.status === "stale" ? Theme.flameGlow : Theme.dim)
                             font.family: Theme.font
@@ -175,26 +187,43 @@ PillSurface {
 
                     Column {
                         width: parent.width
-                        spacing: 2 * root.s
+                        spacing: 5 * root.s
 
                         Repeater {
-                            model: card.modelData.windows
+                            model: card.modelData.windows.length
 
                             Item {
                                 id: row
-                                required property var modelData
+                                required property int index
+                                readonly property var modelData: card.modelData.windows[index]
+                                    || ({ short: "", pct: 0, resetsAt: 0 })
 
-                                width: parent.width
+                                width: card.width
                                 height: 13 * root.s
 
+                                // One aligned table: label, percent, countdown.
                                 Text {
                                     anchors.left: parent.left
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: row.modelData.short + " " + Math.round(row.modelData.pct) + "%"
-                                    color: root.tint(row.modelData.pct)
+                                    width: 24 * root.s
+                                    text: row.modelData.short
+                                    color: Theme.subtle
                                     font.family: Theme.font
                                     font.pixelSize: 10 * root.s
                                     font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
+                                }
+                                Text {
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 27 * root.s
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: 30 * root.s
+                                    horizontalAlignment: Text.AlignRight
+                                    text: Math.round(row.modelData.pct) + "%"
+                                    color: root.tint(row.modelData.pct)
+                                    font.family: Theme.font
+                                    font.pixelSize: 10 * root.s
+                                    font.weight: Font.Bold
                                     font.features: { "tnum": 1 }
                                 }
                                 Text {
