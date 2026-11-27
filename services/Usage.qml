@@ -14,8 +14,9 @@ import Quickshell.Io
  * File: `$XDG_STATE_HOME/llm-usage/usage.json`, contract version 1. A provider
  * has `status` ok, stale, unavailable or error, an optional `plan` and
  * `reason`, and `windows` keyed `session` (5 hours) and `weekly` (7 days).
- * Antigravity has no session window: it sends `weekly` and `weekly_3p`. A
- * window can carry its own `label` and `short` names.
+ * Antigravity sends `weekly`, `weekly_3p`, `session_3p` and sometimes
+ * `session`. A window can carry its own `label` name. A window
+ * without `resets_at` is normal: the limit is not in use.
  * Times are Unix epoch seconds and `used_percent` is 0 to 100. A missing
  * window or provider is shown dim with a reason, never as an error.
  *
@@ -35,7 +36,6 @@ Singleton {
     readonly property var order: ["codex", "claude", "antigravity"]
     readonly property var names: ({ codex: "Codex", claude: "Claude", antigravity: "Antigravity" })
     readonly property var windowNames: ({ session: "5h session", weekly: "7d weekly" })
-    readonly property var windowShort: ({ session: "5h", weekly: "7d" })
     readonly property var levels: [80, 95, 100]
     readonly property int staleSecs: 600
 
@@ -60,6 +60,44 @@ Singleton {
         for (var i = 0; i < providers.length; i++)
             m = Math.max(m, peakOf(providers[i]));
         return m;
+    }
+
+    /** A window of one day or less belongs to the 5 hour rows, else to the weekly rows. */
+    function isShort(w) {
+        return w.seconds > 0 ? w.seconds <= 86400 : w.key.indexOf("session") === 0;
+    }
+
+    function periodWindows(p, wantShort) {
+        return p.windows.filter(function(w) { return isShort(w) === wantShort; });
+    }
+
+    /**
+     * The window that stands for a period on a card line: the highest used
+     * percent. On a tie, a window with a reset time wins. Null when the
+     * provider has no window for the period.
+     */
+    function periodTop(p, wantShort) {
+        var list = periodWindows(p, wantShort);
+        var top = null;
+        for (var i = 0; i < list.length; i++) {
+            var w = list[i];
+            if (top === null || w.pct > top.pct || (w.pct === top.pct && top.resetsAt <= 0 && w.resetsAt > 0))
+                top = w;
+        }
+        return top;
+    }
+
+    /**
+     * Hover text for a provider with two or more windows in one period, one line
+     * for each window. Empty when the card lines already show everything.
+     */
+    function detailText(p) {
+        if (periodWindows(p, true).length < 2 && periodWindows(p, false).length < 2)
+            return "";
+        return p.windows.map(function(w) {
+            var reset = resetShort(w.resetsAt);
+            return w.label + "  " + Math.round(w.pct) + "%" + (reset.length > 0 ? "  ·  " + reset : "");
+        }).join("\n");
     }
 
     function peakOf(p) {
@@ -127,8 +165,9 @@ Singleton {
     }
 
     /**
-     * Window to draw on the inner ring: the session, else the first window that
-     * is not on the outer ring. Null when the provider has only one window.
+     * Window to draw on the inner ring: the first 5 hour window (`session`
+     * before `session_3p`), else the first window that is not on the outer
+     * ring. Null when the provider has only one window.
      */
     function innerWindow(p) {
         var outer = outerWindow(p);
@@ -137,7 +176,7 @@ Singleton {
             var w = p.windows[i];
             if (w === outer)
                 continue;
-            if (w.key === "session")
+            if (isShort(w))
                 return w;
             if (other === null)
                 other = w;
@@ -168,7 +207,7 @@ Singleton {
         var wins = [];
         var w = raw.windows || {};
         var keys = Object.keys(w).sort(function(a, b) {
-            var o = { session: 0, weekly: 1, weekly_3p: 2 };
+            var o = { session: 0, session_3p: 1, weekly: 2, weekly_3p: 3 };
             return (o[a] !== undefined ? o[a] : 9) - (o[b] !== undefined ? o[b] : 9);
         });
         for (var i = 0; i < keys.length; i++) {
@@ -176,9 +215,9 @@ Singleton {
             if (!it || typeof it.used_percent !== "number")
                 continue;
             wins.push({ key: keys[i], label: String(it.label || windowNames[keys[i]] || keys[i]),
-                        short: String(it.short || windowShort[keys[i]] || keys[i]),
                         pct: Math.max(0, Math.min(100, it.used_percent)),
-                        resetsAt: Number(it.resets_at) || 0 });
+                        resetsAt: Number(it.resets_at) || 0,
+                        seconds: Number(it.window_seconds) || 0 });
         }
         var status = String(raw.status || "unavailable");
         var reason = String(raw.reason || "");
@@ -239,10 +278,11 @@ Singleton {
                 var prev = latches[key];
                 var prevLvl = (prev && prev.resetsAt === w.resetsAt) ? prev.level : 0;
                 if (baselined && lvl > prevLvl) {
+                    var reset = resetIn(w.resetsAt);
                     queue.push({ urgency: lvl >= 95 ? "critical" : "normal",
                                  summary: p.name + " " + w.label + " limit at " + Math.round(w.pct) + "%",
-                                 body: lvl >= 100 ? "The limit is reached. " + resetIn(w.resetsAt) + "."
-                                                  : resetIn(w.resetsAt) + "." });
+                                 body: (lvl >= 100 ? "The limit is reached. " : "")
+                                     + (reset.length > 0 ? reset + "." : "") });
                 }
                 next[key] = { level: lvl, resetsAt: w.resetsAt };
             }

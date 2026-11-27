@@ -47,7 +47,7 @@ This is a fork of amanhex's **Ukishima** (浮島, *"floating island"*) — the n
 
 ### Modules
 
-- **LLM usage notch:** ring gauges for the Codex, Claude and Antigravity limits, with the time until each reset. It warns at 80, 95 and 100 percent. It needs [a separate collector](#usage-notch).
+- **LLM usage notch:** ring gauges for the Codex, Claude and Antigravity limits. Each card shows a `5h` line and a `7d` line with the time until the reset. It warns at 80, 95 and 100 percent. It needs [a separate collector](#usage-notch).
 - **Polkit agent:** the password prompt uses the pill palette and font. See [Polkit Agent](#polkit-agent).
 - **Network panel:** live vitals (ping, packet loss, transfer rates, session totals, IP and gateway), a Wi-Fi band selector, QR sharing, a speed test, and the Known and Other network lists. When the route to the internet is wired, the pill shows one Ethernet icon, and the panel shows an Ethernet view with the link speed.
 - **Wallpaper system:** the `awww` backend with a shuffled bag, per-monitor assignment, transitions, video wallpapers (`mpvpaper`) and a fit control. It includes [Wallhaven](https://wallhaven.cc) search with sorting and pagination. Online thumbnails stay in memory.
@@ -252,7 +252,10 @@ The shell only reads `$XDG_STATE_HOME/llm-usage/usage.json` (default `~/.local/s
 - The provider keys are `codex`, `claude` and `antigravity`.
 - `status` is `ok`, `stale`, `unavailable` or `error`. Use `reason` to explain the last two.
 - Times are Unix epoch seconds. `used_percent` is 0 to 100.
-- A window can set its own `label` and `short` names.
+- The `windows` keys are free names, for example `session`, `weekly`, `session_3p` and `weekly_3p`. A window with `window_seconds` of one day or less belongs to the `5h` line. Other windows belong to the `7d` line. Without `window_seconds`, a key that starts with `session` belongs to the `5h` line.
+- A card line shows the highest window of its period. When a period has two or more windows, a hover hint lists each window.
+- A window can set its own `label` name. The hint and the warnings use it.
+- `resets_at` is optional. A window without it shows a dash.
 - Write the file atomically. If the file is older than 10 minutes, the shell shows the data as stale.
 
 ### Google Calendar
